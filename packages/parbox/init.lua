@@ -187,7 +187,7 @@ function package:registerCommands ()
     local border = options.border and parseBorderOrPadding(options.border, "border") or { 0, 0, 0, 0 }
     local valign = options.valign or "top"
     local padding = options.padding and parseBorderOrPadding(options.padding, "padding") or { 0, 0, 0, 0 }
-    local bordercolor =  options.bordercolor and SILE.colorparser(options.bordercolor)
+    local bordercolor =  options.bordercolor and SILE.color(options.bordercolor)
     local minimize = SU.boolean(options.minimize, false)
 
     width = SILE.length(SU.cast("measurement", width)):absolute()

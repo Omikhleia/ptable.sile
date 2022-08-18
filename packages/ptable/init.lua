@@ -244,7 +244,7 @@ local processTable = {}
 
 processTable["cell"] = function (content, args, tablespecs)
     local span = SU.cast("integer", content.options.span or 1)
-    local color = content.options.background and SILE.colorparser(content.options.background)
+    local color = content.options.background and SILE.color(content.options.background)
     local pad = parsePadding(content.options.padding or tablespecs.cellpadding)
     local width = computeCellWidth(args.col, span, tablespecs.cols)
 
@@ -287,7 +287,7 @@ processTable["celltable"] = function (content, args, tablespecs)
   end
 
 processTable["row"] = function (content, args, tablespecs)
-    local color = content.options.background and SILE.colorparser(content.options.background)
+    local color = content.options.background and SILE.color(content.options.background)
 
     SILE.settings:set("document.lineskip", SILE.length())
     local iCell = args.col and args.col or 1
