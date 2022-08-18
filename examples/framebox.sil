@@ -1,9 +1,9 @@
 \begin[papersize=a5,class=plain]{document}
 \neverindent
 \nofolios
-\script[src=packages/parbox]
-\script[src=packages/framebox]
-\script[src=packages/leaders]
+\use[module=packages.parbox]
+\use[module=packages.framebox]
+\use[module=packages.leaders]
 \language[main=en]
 \font[family=Libertinus Serif, size=14]
 

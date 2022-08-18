@@ -1,7 +1,7 @@
 \begin[papersize=a5,class=plain]{document}
 \neverindent
 \nofolios
-\script[src=packages/ptable]
+\use[module=packages.ptable]
 \font[family=Libertinus Serif, size=10]
 
 \center{\font[weight=700, size=12]{A Tale of Tables}}
