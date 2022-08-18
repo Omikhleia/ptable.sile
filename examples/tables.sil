@@ -1,0 +1,159 @@
+\begin[papersize=a5,class=plain]{document}
+\neverindent
+\nofolios
+\script[src=packages/ptable]
+\font[family=Libertinus Serif, size=10]
+
+\center{\font[weight=700, size=12]{A Tale of Tables}}
+
+\bigskip
+
+\begin{center}
+\begin[cols=24%fw 20%fw 16%fw, cellborder=0]{ptable}
+  \begin{row}
+    \cell[halign=center, span=2, border=0.8pt 0.4pt 0 0]{Item}
+    \cell[border=0.8pt 0 0 0]{}
+  \end{row}
+  \begin{row}
+    \cell[border=0 0.8pt 0 0, padding=4pt 4pt 0 4pt]{Animal}
+    \cell[border=0 0.8pt 0 0]{Description}
+    \cell[halign=right, border=0 0.8pt 0 0, padding=4pt 4pt 4pt 0]{Price ($)}
+  \end{row}
+  \begin{row}
+    \cell[valign=top, padding=4pt 1pt 0 4pt]{Gnat}
+    \begin[span=2]{celltable}
+      \begin{row}
+        \cell[halign=left, padding=4pt 1pt 4pt 4pt]{per gram}
+        \cell[halign=right, padding=4pt 1pt 4pt 0]{13.65}
+      \end{row}
+      \begin{row}
+        \cell[halign=left, padding=1pt 1pt 4pt 4pt]{each}
+        \cell[halign=right, padding=1pt 1pt 4pt 0]{0.01}
+      \end{row}
+    \end{celltable}
+  \end{row}
+  \begin{row}
+    \cell[padding=2pt 1pt 0 4pt]{Gnu}
+    \cell[padding=2pt 1pt 4pt 4pt]{stuffed}
+    \cell[halign=right, padding=2pt 1pt 4pt 0]{92.50}
+  \end{row}
+  \begin{row}
+      \cell[padding=2pt 1pt 0 4pt]{\noindent{}Emu}
+      \cell[padding=2pt 1pt 4pt 4pt]{stuffed}
+      \cell[padding=2pt 1pt 4pt 0]{\raggedleft{33.33}}
+  \end{row}
+  \begin{row}
+      \cell[border=0 0.8pt 0 0, padding=2pt 4pt 0 4pt]{\noindent{}Armadillo}
+      \cell[border=0 0.8pt 0 0, padding=2pt 4pt 4pt 4pt]{frozen}
+      \cell[border=0 0.8pt 0 0, padding=2pt 4pt 4pt 0]{\raggedleft{8.99}}
+  \end{row}
+\end{ptable}
+
+\font[features=+smcp]{Table 1.}
+\end{center}
+
+\bigskip
+
+
+\begin{center}
+\begin[cols=16%fw 22%fw 22%fw, cellborder=0]{ptable}
+  \begin{row}
+    \cell[border=0.8pt 0.4pt 0 0]{}
+    \cell[border=0.8pt 0.4pt 0 0, halign=center]{H(Mu) + F²}
+    \cell[border=0.8pt 0.4pt 0 0, halign=center]{H(Mu) + Cl²}
+  \end{row}
+  \begin{row}
+    \cell{\em{β}\kern[width=0.1em](H)}
+    \cell[halign=center]{80.9°}
+    \cell[halign=center]{83.2°}
+  \end{row}
+  \begin{row}
+    \cell[border=0 0.8pt 0 0]{\em{β}\kern[width=0.1em](Mu)}
+    \cell[border=0 0.8pt 0 0, halign=center]{86.7°}
+    \cell[border=0 0.8pt 0 0, halign=center]{87.7°}
+  \end{row}
+\end{ptable}
+
+\font[features=+smcp]{Table 2.}
+\end{center}
+
+\bigskip
+
+\begin{center}
+\begin[cols=20%fw 16%fw 16%fw 48%fw, bordercolor=#194569]{ptable}
+  \begin[background=#91aec4]{row}
+    \cell[valign=top]{\font[weight=700]{Day}}
+    \begin[span=3]{celltable}
+      \begin{row}
+        \cell[span=3, halign=center]{\font[weight=700]{Seminar}}
+      \end{row}
+      \begin{row}
+        \begin[span=2]{celltable}
+          \begin{row}
+            \cell[span=2, halign=center]{Schedule}
+          \end{row}
+          \begin{row}
+            \cell[halign=left]{Begin}
+            \cell[halign=right]{End}
+          \end{row}
+        \end{celltable}
+        \cell{Topic}
+      \end{row}
+    \end{celltable}
+  \end{row}
+  \begin{row}
+    \cell[background=#dbe9f4]{Monday}
+    \cell[halign=left]{9:30 AM}
+    \cell[halign=right]{5:30 PM}
+    \begin{celltable}
+      \row{\cell{Introduction to SILE}}
+      \row{\cell{Classes & packages}}
+    \end{celltable}
+  \end{row}
+  \begin{row}
+    \cell[background=#dbe9f4]{Tuesday}
+    \begin[span=2]{celltable}
+      \begin{row}
+        \cell[halign=left]{9:30 AM}
+        \cell[halign=right]{11:00 AM}
+      \end{row}
+      \begin{row}
+        \cell[halign=left]{11:00 AM}
+        \cell[halign=right]{12:00 PM}
+      \end{row}
+      \begin{row}
+        \cell[halign=left]{2:00 PM}
+        \cell[halign=right]{5:00 PM}
+      \end{row}
+    \end{celltable}
+    \begin{celltable}
+      \row{\cell{Math & advanced typesetting}}
+      \row{\cell{The internals of SILE}}
+    \end{celltable}
+  \end{row}
+  \begin{row}
+    \cell[background=#dbe9f4]{Wednesday}
+    \begin[span=2]{celltable}
+      \begin{row}
+        \cell[halign=left]{8:00 AM}
+        \cell[halign=right]{12:00 PM}
+      \end{row}
+      \begin{row}
+        \cell[halign=left]{2:00 PM}
+        \cell[halign=right]{5:00 PM}
+      \end{row}
+    \end{celltable}
+    \cell{SILE as an XML processor}
+  \end{row}
+  \begin{row}
+    \cell[background=#dbe9f4]{Thuesday}
+    \cell[halign=left]{8:00 AM}
+    \cell[halign=right]{12:00 PM}
+    \cell{Mardown conversion use cases, strategies and solutions}
+  \end{row}
+\end{ptable}
+
+\font[features=+smcp]{Table 3.}
+\end{center}
+
+\end{document}

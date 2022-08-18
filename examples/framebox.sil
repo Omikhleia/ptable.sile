@@ -1,0 +1,78 @@
+\begin[papersize=a5,class=plain]{document}
+\neverindent
+\nofolios
+\script[src=packages/parbox]
+\script[src=packages/framebox]
+\script[src=packages/leaders]
+\language[main=en]
+\font[family=Libertinus Serif, size=14]
+
+\center{\font[weight=700]{Do Boxes Rock?}}
+
+\bigskip
+
+\font[features=+smcp]{What is SILE?}\dotfill
+\begin{bracebox}
+\begin[valign=middle, width=60%fw, minimize=false, padding=0.2em]{parbox}
+SILE is a typesetting system.\par
+Its job is to produce beautiful printed documents from raw content.
+\end{parbox}
+\end{bracebox}
+
+\bigskip
+
+\begin{center}
+\begin[side=both, bracecolor=#59b24c, curvyness=0.7, padding=1em, bracethickness=0.1em, bracewidth=0.4em]{bracebox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{bracebox}
+\end{center}
+
+\bigskip
+
+\begin{center}
+\begin[padding=1em, shadow=true, bordercolor=#b94051, fillcolor=#ecb0b8, shadowcolor=200]{framebox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{framebox}
+\end{center}
+
+\bigskip
+
+\begin{center}
+\begin[padding=1em, shadow=true, bordercolor=#5140b9, fillcolor=#b8b0be, shadowcolor=200, cornersize=20pt]{roundbox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{roundbox}
+\end{center}
+
+\bigskip
+
+\begin{center}
+\begin[padding=1em, bordercolor=#59b24c, fillcolor=220, enlarge=true]{roughbox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{roughbox}
+\end{center}
+
+\end{document}
