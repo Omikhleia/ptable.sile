@@ -5,7 +5,7 @@ source = {
     tag = "master"
 }
 description = {
-   summary = "Blah.",
+   summary = "Paragraph boxes, framed boxes and table packages for the SILE typesetting system.",
    detailed = [[
      This package for the SILE typesetter provides struts, paragraph boxes
      (parbox), framed boxes (framebox) and tables (ptable).

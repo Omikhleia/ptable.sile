@@ -33,8 +33,8 @@ Installation relies on the **luarocks** package manager.
 To install the latest development version, you may use the provided “rockspec”:
 
 ```
-luarocks --lua-version 5.4  install https://raw.githubusercontent.com/Omikhleia/ptable.sile/main/ptable.sile-dev-1.rockspec
+luarocks --lua-version 5.4 install https://raw.githubusercontent.com/Omikhleia/ptable.sile/main/ptable.sile-dev-1.rockspec
 ```
 
-(Adapt to you version of Lua, if need be, and refer to the SILE manual for more
-detailed installation information.)
+(Adapt to your version of Lua, if need be, and refer to the SILE manual for more
+detailed 3rd-party package installation information.)
