@@ -1,6 +1,7 @@
 # ptable.sile
 
 [![license](https://img.shields.io/github/license/Omikhleia/ptable.sile)](LICENSE)
+[![Luarocks](https://img.shields.io/luarocks/v/Omikhleia/ptable.sile?label=Luarocks&logo=Lua)](https://luarocks.org/modules/Omikhleia/ptable.sile)
 
 This package set for the [SILE](https://github.com/sile-typesetter/sile) typesetting
 system provides struts, paragraph boxes (parbox), framed boxes (framebox) and
