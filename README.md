@@ -1,6 +1,7 @@
 # ptable.sile
 
 [![license](https://img.shields.io/github/license/Omikhleia/ptable.sile)](LICENSE)
+[![Luacheck](https://img.shields.io/github/workflow/status/Omikhleia/ptable.sile/Luacheck?label=Luacheck&logo=Lua)](https://github.com/Omikhleia/ptable.sile/actions?workflow=Luacheck)
 [![Luarocks](https://img.shields.io/luarocks/v/Omikhleia/ptable.sile?label=Luarocks&logo=Lua)](https://luarocks.org/modules/Omikhleia/ptable.sile)
 
 This package set for the [SILE](https://github.com/sile-typesetter/sile) typesetting
