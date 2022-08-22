@@ -1,8 +1,8 @@
 \begin[papersize=a6]{document}
 \neverindent
 \nofolios
-\script[src=packages/parbox]
-\script[src=packages/rules]
+\use[module=packages.parbox]
+\use[module=packages.rules]
 \script{
 SILE.registerCommand("test:fancymargins", function (options, content)
   SILE.settings:set("document.lskip", SILE.length("1em"))

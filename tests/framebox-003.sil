@@ -1,6 +1,6 @@
 \begin[papersize=a6]{document}
-\script[src=packages/framebox]
-\script[src=packages/struts]
+\use[module=packages.framebox]
+\use[module=packages.struts]
 \nofolios
 \neverindent
 % Test case: \bracebox basics

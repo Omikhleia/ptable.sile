@@ -285,8 +285,6 @@ package.documentation = [[
 \use[module=packages.parbox]
 \use[module=packages.framebox]
 
-\script[src=packages/parbox]
-
 As its name implies, the \autodoc:package{framebox} package provide several horizontal box framing goodies.
 
 The \autodoc:command{\framebox} command frames its content in a \framebox{square box.}

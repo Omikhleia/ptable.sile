@@ -1,7 +1,7 @@
 \begin[papersize=a6]{document}
 \nofolios
-\script[src=packages/ptable]
-\script[src=packages/raiselower]
+\use[module=packages.ptable]
+\use[module=packages.raiselower]
 % Table with cell border configuration at cell level:
 % This table example is in the LaTeX ctable package, let us try to reproduce it.
 

@@ -2,8 +2,8 @@
 \neverindent
 \nofolios
 \set[parameter=document.parskip, value=5pt]
-\script[src=packages/parbox]
-\script[src=packages/lorem]
+\use[module=packages.parbox]
+\use[module=packages.lorem]
 % An end-to-end test for parbox inception and footnotes cascading,
 % covering also parbox minimization.
 

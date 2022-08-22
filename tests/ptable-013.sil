@@ -2,7 +2,7 @@
 \nofolios
 \neverindent
 \font[size=9pt]
-\script[src=packages/ptable]
+\use[module=packages.ptable]
 
 \begin[cols=20%fw 16%fw 16%fw 48%fw]{ptable}
   \begin[background=#ddd]{row}

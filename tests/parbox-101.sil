@@ -1,9 +1,9 @@
 \begin[papersize=a6]{document}
 \neverindent
 \nofolios
-\script[src=packages/parbox]
-\script[src=packages/rules]
-\script[src=packages/lorem]
+\use[module=packages.parbox]
+\use[module=packages.rules]
+\use[module=packages.lorem]
 % An end-to-end test covering all alignement cases (top, bottom, middle)
 % with all alignement options (no strut, character, rule strut)
 % and with varying paddings on the last test.

@@ -1,5 +1,5 @@
 \begin[papersize=a6]{document}
-\script[src=packages/framebox]
+\use[module=packages.framebox]
 \nofolios
 \neverindent
 % Test case: \framebox and \roundbox basics
