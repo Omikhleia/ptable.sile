@@ -314,24 +314,28 @@ processTable["row"] = function (content, args, tablespecs)
 function package:_init ()
   base._init(self)
   self.class:loadPackage("parbox")
-
-  -- TYPESETTER TWEAKS
-  -- We modify the typesetter globally to check whether the content on a new
-  -- frame is a table row, which needs repeating a header row to be inserted.
-  -- EXPERIMENTAL AND SOMEWHAT HACKY-WHACKY = MIGHT NOT BE ROBUST
-  local oldInitNextFrame = SILE.typesetter.initNextFrame
-  SILE.typesetter.initNextFrame = function (typesetter)
-    oldInitNextFrame(typesetter)
-    -- Check the top vboxes:
-    -- There could be a leading frame vglue, so we check the two first boxes.
-    for k = 1, 2 do
-      if typesetter.state.outputQueue[k] and typesetter.state.outputQueue[k]._header_ then
-        local header = typesetter.state.outputQueue[k]._header_
-        table.insert(typesetter.state.outputQueue, k, header)
-        break
+  self.class:registerPostinit(function()
+    -- TYPESETTER TWEAKS
+    -- N.B. We do this at class post-init since the base class's post-init now
+    -- now creates the typesetter at this point (SILE > v0.14).
+    --
+    -- We modify the typesetter globally to check whether the content on a new
+    -- frame is a table row, which may need a repeating header row to be inserted.
+    -- EXPERIMENTAL AND SOMEWHAT HACKY-WHACKY = MIGHT NOT BE ROBUST
+    local oldInitNextFrame = SILE.typesetter.initNextFrame
+    SILE.typesetter.initNextFrame = function (typesetter)
+      oldInitNextFrame(typesetter)
+      -- Check the top vboxes:
+      -- There could be a leading frame vglue, so we check the two first boxes.
+      for k = 1, 2 do
+        if typesetter.state.outputQueue[k] and typesetter.state.outputQueue[k]._ptableheader_ then
+          local header = typesetter.state.outputQueue[k]._ptableheader_
+          table.insert(typesetter.state.outputQueue, k, header)
+          break
+        end
       end
     end
-  end
+  end)
 end
 
 function package:registerCommands ()
@@ -396,8 +400,8 @@ function package:registerCommands ()
               if iRow == 1 and currentVbox then
                 headerVbox = currentVbox
               elseif currentVbox and headerVbox then
-                -- Hack a link to the header vbox in the current vbox.
-                currentVbox._header_ = headerVbox
+                -- Hack an internal link to the header vbox in the current vbox.
+                currentVbox._ptableheader_ = headerVbox
               end
             end
             -- end header row logic.
