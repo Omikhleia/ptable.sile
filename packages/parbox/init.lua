@@ -68,7 +68,14 @@ local function parboxFraming (options, content)
 
   SILE.settings:pushState()
   SILE.settings:toplevelState()
-  parboxTypesetter = SILE.defaultTypesetter()
+
+  if SILE.defaultTypesetter then
+    -- Compatibility shim for SILE 0.14.0..0.14.5
+    parboxTypesetter = SILE.defaultTypesetter()
+  else
+    -- Breaking change for SILE 0.14.6 and upper
+    parboxTypesetter = SILE.typesetters.base()
+  end
 
   local originalLeaveHmode = parboxTypesetter.leaveHmode
   parboxTypesetter.leaveHmode = function (self, _)
