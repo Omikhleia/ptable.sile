@@ -39,7 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
-# SILE arterfacts
+# SILE artifacts
 *.toc
 *.ref
 tests/*.pdf
