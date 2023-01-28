@@ -1,10 +1,13 @@
 --
 -- A table package for SILE
 -- Or rather "parbox-based tables", using the parbox package as a building block.
--- 2021-2022 Didier Willis
+-- 2021-2023 Didier Willis
 -- License: MIT
 --
 local base = require("packages.base")
+
+local hboxer = require("resilient-compat.hboxing") -- Compatibility hack/shim
+local makeParbox -- assigned at package initialization
 
 local package = pl.class(base)
 package._name = "ptable"
@@ -135,11 +138,13 @@ end
 
 local cellNode = pl.class({
   type = "cellnode",
-  cellBox = nil,
+  cellBox = nil, -- cell parbox
+  hlist = {}, -- migrating content from the parbox
   valign = nil,
   color = nil,
-  _init = function (self, cellBox, valign, color)
+  _init = function (self, cellBox, hlist, valign, color)
     self.cellBox = cellBox
+    self.hlist = hlist
     self.valign = valign
     self.color = color
   end,
@@ -160,7 +165,8 @@ local cellNode = pl.class({
     end
   end,
   shipout = function (self)
-    colorBox(self.cellBox, self.color)
+    colorBox(self.cellBox, self.color) -- output parbox re-wrapped in color box
+    hboxer.pushHlist(self.hlist) -- re-insert the migrating content
   end
 })
 
@@ -220,20 +226,18 @@ local rowNode = pl.class({
     end
   end,
   shipout = function (self)
-      -- A regular hbox suffices here.
-      -- Important hack or a parindent occurs sometimes: Set up queue but avoid a newPar.
-      -- We had do to the same weird magic in the parbox package too at one step, see the
-      -- comment there.
-      SILE.typesetter.state.nodes[#SILE.typesetter.state.nodes+1] = SILE.nodefactory.zerohbox()
-      local hbox = SILE.call("hbox", {}, function ()
-        for i = 1, #self.cells do
-          self.cells[i]:shipout()
-        end
-      end)
-    if self.color then
-      table.remove(SILE.typesetter.state.nodes) -- steal it back...
-      colorBox(hbox, self.color) -- ...and re-wrap it with color.
-    end
+    -- A regular hbox suffices here.
+    -- Important hack or a parindent occurs sometimes: Set up queue but avoid a newPar.
+    -- We had do to the same weird magic in the parbox package too at one step, see the
+    -- comment there.
+    SILE.typesetter.state.nodes[#SILE.typesetter.state.nodes+1] = SILE.nodefactory.zerohbox()
+    local hbox, hlist = hboxer.makeHbox(function ()
+      for i = 1, #self.cells do
+        self.cells[i]:shipout()
+      end
+    end)
+    colorBox(hbox, self.color) -- re-wrap it with color
+    hboxer.pushHlist(hlist) -- propagate migrating content
     SILE.typesetter:leaveHmode(1) -- 1 = do not eject to page yet (see repeating header logic)
   end
 })
@@ -249,7 +253,7 @@ processTable["cell"] = function (content, args, tablespecs)
     local width = computeCellWidth(args.col, span, tablespecs.cols)
 
     -- build the parbox...
-    local cellBox = SILE.call("parbox", { width = width - pad[3] - pad[4],
+    local cellBox, hlist = makeParbox({ width = width - pad[3] - pad[4],
               padding = pad,
               border = content.options.border or tablespecs.cellborder,
               bordercolor = tablespecs.bordercolor,
@@ -258,13 +262,7 @@ processTable["cell"] = function (content, args, tablespecs)
         SILE.call("ptable:cell:hook", content.options, content)
       end)
     end)
-    table.remove(SILE.typesetter.state.nodes) -- .. but steal it back...
-    -- NOTE (reminder): when building the parbox, migrating nodes (e.g. footnotes)
-    -- have been moved to the parent typesetter. Stealing the resulting box,
-    -- doesn't change that. But it occurs before pushing all boxes, I am
-    -- unsure where footnotes for long tables spanning over multiple
-    -- pages and/or split cells will end up...
-    return cellNode(cellBox, content.options.valign, color)
+    return cellNode(cellBox, hlist, content.options.valign, color)
   end
 
 processTable["celltable"] = function (content, args, tablespecs)
@@ -314,6 +312,12 @@ processTable["row"] = function (content, args, tablespecs)
 function package:_init ()
   base._init(self)
   self.class:loadPackage("parbox")
+  if not self.class.packages.parbox or not self.class.packages.parbox.makeParbox then
+    SU.error("Unexpected issue loading the parbox package (or version mismatch)")
+  end
+  makeParbox = function (options, content)
+    return self.class.packages.parbox:makeParbox(options, content)
+  end
   self.class:registerPostinit(function()
     -- TYPESETTER TWEAKS
     -- N.B. We do this at class post-init since the base class's post-init now
