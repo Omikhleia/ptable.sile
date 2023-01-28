@@ -1,0 +1,20 @@
+\begin[papersize=a6, class=resilient.book]{document}
+\use[module=packages.framebox]
+\use[module=packages.struts]
+\nofolios
+\neverindent
+% Test case: migrating content in framebox and colleagues.
+
+1. \framebox{square box\footnote{square}.}
+
+\medskip
+2. \roundbox{rounded box\footnote{rounded}.}
+
+\medskip
+3. \roughbox{rough box\footnote{rough}.}
+
+\medskip
+4. \framebox{\parbox[width=60pt]{\raggedright{Lorem ipsum\footnote{framed parbox} dolor sit amet.}}}
+
+
+\end{document}
