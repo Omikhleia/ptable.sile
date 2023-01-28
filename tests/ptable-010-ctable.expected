@@ -8,7 +8,7 @@ Draw line	84.5291	26.9764	85.7197	0.8000
 Draw line	84.5291	45.5721	85.7197	0.4000
 Mx 	108.5291
 My 	39.1307
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	43 w=6.5381	(H)
 Mx 	115.0672
 T	11 w=3.1689	(()
@@ -22,13 +22,13 @@ Mx 	144.1544
 T	41 w=4.7803	(F)
 Mx 	148.9346
 My 	35.6341
-Set font 	Gentium Plus;6.421;400;;normal;;LTR
+Set font 	Gentium Plus;6.421;400;;normal;;;LTR
 T	21 w=3.0130	(2)
 Draw line	170.2488	26.9764	85.7197	0.8000
 Draw line	170.2488	45.5721	85.7197	0.4000
 Mx 	194.2488
 My 	39.1307
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	43 w=6.5381	(H)
 Mx 	200.7869
 T	11 w=3.1689	(()
@@ -42,16 +42,16 @@ Mx 	229.8733
 T	38 79 w=8.0713	(Cl)
 Mx 	237.9446
 My 	35.6341
-Set font 	Gentium Plus;6.421;400;;normal;;LTR
+Set font 	Gentium Plus;6.421;400;;normal;;;LTR
 T	21 w=3.0130	(2)
 Mx 	41.6693
 My 	54.8699
 Mx 	65.6693
 My 	57.7264
-Set font 	Gentium Plus;10;400;Italic;normal;;LTR
+Set font 	Gentium Plus;10;400;Italic;normal;;;LTR
 T	478 w=4.6289	(β)
 Mx 	71.2982
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	11 w=3.1689	(()
 Mx 	74.4671
 T	43 w=6.5381	(H)
@@ -70,10 +70,10 @@ My 	73.4656
 Draw line	41.6693	82.7635	42.8598	0.8000
 Mx 	65.6693
 My 	76.3221
-Set font 	Gentium Plus;10;400;Italic;normal;;LTR
+Set font 	Gentium Plus;10;400;Italic;normal;;;LTR
 T	478 w=4.6289	(β)
 Mx 	71.2982
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	11 w=3.1689	(()
 Mx 	74.4671
 T	48 88 w=13.3594	(Mu)
@@ -110,13 +110,13 @@ Mx 	144.1544
 T	41 w=4.7803	(F)
 Mx 	148.9346
 My 	103.4212
-Set font 	Gentium Plus;6.421;400;;normal;;LTR
+Set font 	Gentium Plus;6.421;400;;normal;;;LTR
 T	21 w=3.0130	(2)
 Draw line	170.2488	94.7635	85.7197	0.8000
 Draw line	170.2488	113.3592	85.7197	0.4000
 Mx 	194.2488
 My 	106.9178
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	43 w=6.5381	(H)
 Mx 	200.7869
 T	11 w=3.1689	(()
@@ -130,16 +130,16 @@ Mx 	229.8733
 T	38 79 w=8.0713	(Cl)
 Mx 	237.9446
 My 	103.4212
-Set font 	Gentium Plus;6.421;400;;normal;;LTR
+Set font 	Gentium Plus;6.421;400;;normal;;;LTR
 T	21 w=3.0130	(2)
 Mx 	41.6693
 My 	122.6570
 Mx 	65.6693
 My 	125.5135
-Set font 	Gentium Plus;10;400;Italic;normal;;LTR
+Set font 	Gentium Plus;10;400;Italic;normal;;;LTR
 T	478 w=4.6289	(β)
 Mx 	71.2982
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	11 w=3.1689	(()
 Mx 	74.4671
 T	43 w=6.5381	(H)
@@ -158,10 +158,10 @@ My 	141.2527
 Draw line	41.6693	150.5506	42.8598	0.8000
 Mx 	65.6693
 My 	144.1092
-Set font 	Gentium Plus;10;400;Italic;normal;;LTR
+Set font 	Gentium Plus;10;400;Italic;normal;;;LTR
 T	478 w=4.6289	(β)
 Mx 	71.2982
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	11 w=3.1689	(()
 Mx 	74.4671
 T	48 88 w=13.3594	(Mu)

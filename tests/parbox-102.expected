@@ -2,7 +2,7 @@ Set paper size 	297.6377985	419.5275636
 Begin page
 Mx 	24.7039
 My 	61.8195
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	36 w=5.9521	(A)
 Mx 	30.6561
 T	17 w=2.2900	(.)
@@ -20,7 +20,7 @@ Mx 	68.7458
 T	83 68 85 69 82 91 w=28.9844	(parbox)
 Mx 	97.7301
 My 	58.6408
-Set font 	Gentium Plus;6.81152;400;;normal;;LTR
+Set font 	Gentium Plus;6.81152;400;;normal;;;LTR
 T	20 w=3.1962	(1)
 Draw line	40.5940	70.1632	123.3196	0.5000
 Draw line	40.5940	90.7589	123.3196	0.5000
@@ -28,7 +28,7 @@ Draw line	40.5940	70.1632	0.5000	21.0957
 Draw line	163.9137	70.1632	0.5000	21.0957
 Mx 	45.5940
 My 	83.3175
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	44 w=2.9785	(I)
 Mx 	51.2169
 T	68 80 w=12.6221	(am)
@@ -40,11 +40,11 @@ Mx 	110.4586
 T	83 68 85 69 82 91 w=28.9844	(parbox)
 Mx 	139.4430
 My 	80.1388
-Set font 	Gentium Plus;6.81152;400;;normal;;LTR
+Set font 	Gentium Plus;6.81152;400;;normal;;;LTR
 T	21 w=3.1962	(2)
 Mx 	24.7039
 My 	114.9132
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	37 w=5.4980	(B)
 Mx 	30.2020
 T	17 w=2.2900	(.)
@@ -62,7 +62,7 @@ Mx 	68.2832
 T	83 68 85 69 82 91 w=28.9844	(parbox)
 Mx 	97.2676
 My 	111.7345
-Set font 	Gentium Plus;6.81152;400;;normal;;LTR
+Set font 	Gentium Plus;6.81152;400;;normal;;;LTR
 T	22 w=3.1962	(3)
 Draw line	40.1442	123.2570	123.3196	0.5000
 Draw line	40.1442	143.8527	123.3196	0.5000
@@ -70,7 +70,7 @@ Draw line	40.1442	123.2570	0.5000	21.0957
 Draw line	163.4639	123.2570	0.5000	21.0957
 Mx 	45.1442
 My 	136.4113
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	44 w=2.9785	(I)
 Mx 	50.7671
 T	68 80 w=12.6221	(am)
@@ -82,11 +82,11 @@ Mx 	110.0088
 T	83 68 85 69 82 91 w=28.9844	(parbox)
 Mx 	138.9932
 My 	133.2326
-Set font 	Gentium Plus;6.81152;400;;normal;;LTR
+Set font 	Gentium Plus;6.81152;400;;normal;;;LTR
 T	23 w=3.1962	(4)
 Mx 	24.7039
 My 	168.0070
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	38 w=5.3613	(C)
 Mx 	30.0653
 T	17 w=2.2900	(.)
@@ -104,7 +104,7 @@ Mx 	68.1429
 T	83 68 85 69 82 91 w=28.9844	(parbox)
 Mx 	97.1273
 My 	164.8283
-Set font 	Gentium Plus;6.81152;400;;normal;;LTR
+Set font 	Gentium Plus;6.81152;400;;normal;;;LTR
 T	24 w=3.1962	(5)
 Draw line	40.0093	176.3507	107.0380	0.5000
 Draw line	40.0093	196.9464	107.0380	0.5000
@@ -112,7 +112,7 @@ Draw line	40.0093	176.3507	0.5000	21.0957
 Draw line	147.0473	176.3507	0.5000	21.0957
 Mx 	45.0093
 My 	189.5050
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	44 w=2.9785	(I)
 Mx 	50.6304
 T	68 80 w=12.6221	(am)
@@ -124,11 +124,11 @@ Mx 	109.8667
 T	83 68 85 69 82 91 w=28.9844	(parbox)
 Mx 	138.8511
 My 	186.3263
-Set font 	Gentium Plus;6.81152;400;;normal;;LTR
+Set font 	Gentium Plus;6.81152;400;;normal;;;LTR
 T	25 w=3.1962	(6)
 Mx 	24.7039
 My 	290.5944
-Set font 	Gentium Plus;9;400;;normal;;LTR
+Set font 	Gentium Plus;9;400;;normal;;;LTR
 T	20 w=4.2231	(1)
 Mx 	28.9271
 T	17 w=2.0610	(.)
