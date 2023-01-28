@@ -1,11 +1,13 @@
 --
 -- Fancy framed boxes for SILE
 -- License: MIT
--- 2021-2022 Didier Willis
+-- 2021-2023 Didier Willis
 --
 -- KNOWN ISSUE: RTL and BTT writing directions are not officialy supported yet (untested)
 --
 local base = require("packages.base")
+
+local hboxer = require("resilient-compat.hboxing") -- Compatibility hack/shim
 
 local package = pl.class(base)
 package._name = "framebox"
@@ -16,9 +18,10 @@ local RoughPainter = graphics.RoughPainter
 
 -- LOW-LEVEL REBOXING HELPERS
 
--- Rewraps an hbox into in another fake hbox, adding padding all around it.
--- It assumes the original hbox is NOT in the output queue
+-- Rewraps an hbox into another fake hbox, adding padding all around it.
+-- It assumes the original hbox is NOT in the typesetter queue
 -- (i.e. was stolen back and stored).
+-- It returns the wrapped box without pushing it to the typesetter.
 local function adjustPaddingHbox (hbox, left, right, top, bottom)
   return { -- HACK NOTE: Efficient but might be bad to fake an hbox here without all methods.
     inner = hbox,
@@ -33,14 +36,15 @@ local function adjustPaddingHbox (hbox, left, right, top, bottom)
   }
 end
 
--- Rewraps an hbox into in another hbox responsible for framing it,
+-- Rewraps an hbox into another hbox responsible for framing it,
 -- via a path construction callback called with the target width,
 -- height and depth (assuming 0,0 as original point on the baseline)
 -- and must return a PDF graphics.
--- It assumes the initial hbox is NOT in the output queue
--- (i.e. was stolen back and/or stored earlier).
--- It pushes the resulting hbox to the output queue
-local function frameHbox (hbox, shadowsize, pathfunc)
+-- It assumes the initial hbox is NOT in the typesetter queue
+-- (i.e. was only built and stored earlier).
+-- It pushes the resulting hbox to the typesetter queue,
+-- immediately followed by any passed hlist (migrating nodes).
+local function frameHbox (hbox, hlist, shadowsize, pathfunc)
   local shadowpadding = shadowsize or 0
   SILE.typesetter:pushHbox({
     inner = hbox,
@@ -74,6 +78,7 @@ local function frameHbox (hbox, shadowsize, pathfunc)
       typesetter.frame.state.cursorX = newX
     end
   })
+  hboxer.pushHlist(hlist)
 end
 
 -- SETTINGS
@@ -120,11 +125,10 @@ function package:registerCommands ()
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
     local shadowcolor = shadow and SILE.color(options.shadowcolor or "black")
 
-    local hbox = SILE.call("hbox", {}, content)
-    table.remove(SILE.typesetter.state.nodes) -- steal it back...
+    local hbox, hlist = hboxer.makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
-    frameHbox(hbox, shadowsize, function(w, h, d)
+    frameHbox(hbox, hlist, shadowsize, function(w, h, d)
       local painter = PathRenderer()
       local shadowpath, path
       if shadowsize ~= 0 then
@@ -150,11 +154,10 @@ function package:registerCommands ()
 
     local cornersize = SU.cast("measurement", options.cornersize or SILE.settings:get("framebox.cornersize")):tonumber()
 
-    local hbox = SILE.call("hbox", {}, content)
-    table.remove(SILE.typesetter.state.nodes) -- steal it back...
+    local hbox, hlist = hboxer.makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
-    frameHbox(hbox, shadowsize, function(w, h, d)
+    frameHbox(hbox, hlist, shadowsize, function(w, h, d)
       local H = h + d
       local smallest = w < H and w or H
       cornersize = cornersize < 0.5 * smallest and cornersize or math.floor(0.5 * smallest)
@@ -180,8 +183,7 @@ function package:registerCommands ()
     local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
     local enlarge = SU.boolean(options.enlarge, false)
 
-    local hbox = SILE.call("hbox", {}, content)
-    table.remove(SILE.typesetter.state.nodes) -- steal it back...
+    local hbox, hlist = hboxer.makeHbox(content)
     if enlarge then
       hbox = adjustPaddingHbox(hbox, padding, padding, padding, padding)
     end
@@ -195,7 +197,7 @@ function package:registerCommands ()
     roughOpts.stroke = bordercolor
     roughOpts.fill = fillcolor
 
-    frameHbox(hbox, nil, function(w, h, d)
+    frameHbox(hbox, hlist, nil, function(w, h, d)
       local H = h + d
       local x = 0
       local y = d
@@ -223,11 +225,10 @@ function package:registerCommands ()
     elseif options.side == "both" then left, right = true, true
     else SU.error("Invalid side parameter") end
 
-    local hbox = SILE.call("hbox", {}, content)
-    table.remove(SILE.typesetter.state.nodes) -- steal it back...
+    local hbox, hlist = hboxer.makeHbox(content)
     hbox = adjustPaddingHbox(hbox, left and bracewidth + padding or 0, right and bracewidth + padding or 0, 0, 0)
 
-    frameHbox(hbox, nil, function(w, h, d)
+    frameHbox(hbox, hlist, nil, function(w, h, d)
       local painter = PathRenderer()
       local lb, rb
       if left then
@@ -260,9 +261,7 @@ function package:registerCommands ()
     local underlineThickness = font.post.underlineThickness / upem * fontoptions.size
     -- End taken from the original underline command (rules package)
 
-    local hbox = SILE.call("hbox", {}, content)
-    table.remove(SILE.typesetter.state.nodes) -- steal it back...
-
+    local hbox, hlist = hboxer.makeHbox(content)
     local roughOpts = {}
     if options.roughness then roughOpts.roughness = SU.cast("number", options.roughness) end
     if options.bowing then roughOpts.bowing = SU.cast("number", options.bowing) end
@@ -270,7 +269,7 @@ function package:registerCommands ()
     roughOpts.disableMultiStroke = true
     roughOpts.strokeWidth = underlineThickness
 
-    frameHbox(hbox, nil, function(w, h, d)
+    frameHbox(hbox, hlist, nil, function(w, h, d)
       -- NOTE: Using some arbitrary 1.5 factor, since those sketchy lines are
       -- probably best a bit more lowered than intended...
       local y = h + d + 1.5 * underlinePosition
@@ -374,7 +373,9 @@ Thus now \roundbox{\strut{}a}, \roundbox{\strut{}b} and \roundbox{\strut{}p.}
 The \autodoc:package{parbox} package can also be used to shape whole paragraphs into an horizontal box.
 It may make a good candidate if you want to use the commands provided here around paragraphs:
 
-\center{\framebox[shadow=true]{\parbox[valign=middle,width=5cm]{This is a long content as a boxed paragraph.}}}
+\center{\framebox[shadow=true]{\parbox[valign=middle,width=5cm]{This is a long content as a boxed
+paragraph.\footnote{Did we mention that footnotes are supported in all these boxes?
+Now you know.}}}}
 
 \smallskip
 Or also\dotfill{} \bracebox{\parbox[valign=middle,width=6cm]{\noindent This is a another paragraph, but now with a nice
