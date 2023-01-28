@@ -462,7 +462,7 @@ with tables in mind. For casual box framing, consider using a better-suited solu
 such as the \autodoc:package{framebox} package.}
 
 There is still one advanced option we haven’t described so far, \autodoc:parameter{minimize=true}. When passed,
-then the width of the parbox is considered as a maximum width, vould line-breaking have to occur,
+then the width of the parbox is considered as a maximum width, would line-breaking have to occur,
 but otherwise the box is reduced to the minimum width it actually needs\footnote{Be aware,
 however, that the current implementation is not particularly well optimized.}. Compare:
 
