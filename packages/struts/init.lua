@@ -1,8 +1,11 @@
 --
 -- Struts (rules with no width but a certain height) for SILE
+-- 2021-2023 Didier Willis
 -- License: MIT
 --
 local base = require("packages.base")
+
+local hboxer = require("resilient-compat.hboxing") -- Compatibility hack/shim
 
 local package = pl.class(base)
 package._name = "struts"
@@ -53,8 +56,7 @@ function package:registerCommands ()
     local key = _key(SILE.font.loadDefaults({}))
     local strutCached = strutCache[key]
     if strutCached then return strutCached end
-    local hbox = SILE.call("hbox", {}, { SILE.settings:get("strut.character") })
-    table.remove(SILE.typesetter.state.nodes) -- steal it back
+    local hbox = hboxer.makeHbox({ SILE.settings:get("strut.character") })
     strutCache[key] = {
       height = hbox.height,
       depth = hbox.depth,
@@ -72,7 +74,7 @@ function package:registerCommands ()
         depth = SILE.length(SILE.settings:get("strut.ruledepth")):absolute(),
       }
       if show then
-        -- The "x" there could be anything, we just want to be sure we get a box
+        -- The content there could be anything, we just want to be sure we get a box
         SILE.call("rebox", { phantom = true, height = strut.height, depth = strut.depth, width = SILE.length() }, {})
       end
     else
