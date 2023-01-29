@@ -25,5 +25,6 @@ build = {
     ["sile.packages.framebox.graphics.prng"]      = "packages/framebox/graphics/prng.lua",
     ["sile.packages.framebox.graphics.renderer"]  = "packages/framebox/graphics/renderer.lua",
     ["sile.packages.framebox.graphics.rough"]     = "packages/framebox/graphics/rough.lua",
+    ["sile.resilient-compat.hboxing"]             = "resilient-compat/hboxing.lua",
   }
 }

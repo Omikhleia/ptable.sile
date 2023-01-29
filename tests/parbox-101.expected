@@ -3,7 +3,7 @@ Begin page
 Mx 	14.8819
 My 	32.9764
 Draw line	14.8819	32.8764	267.8740	0.1000
-Set font 	Gentium Plus;10;400;;normal;;LTR
+Set font 	Gentium Plus;10;400;;normal;;;LTR
 T	11 w=3.1689	(()
 Mx 	18.0508
 T	20 w=4.6924	(1)

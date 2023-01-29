@@ -40,3 +40,16 @@ luarocks --lua-version 5.4 install --server=https://luarocks.org/dev ptable.sile
 
 (Adapt to your version of Lua, if need be, and refer to the SILE manual for more
 detailed 3rd-party package installation information.)
+
+## Usage
+
+Examples are provided in the [examples](./examples) folder.
+
+The in-code package documentation may also be useful.
+A readable version of the documentation is included in the User Manual for
+the [resilient.sile](https://github.com/Omikhleia/resilient.sile) collection
+of classes and packages.
+
+## License
+
+All SILE-related code and samples in this repository are released under the MIT License, (c) 2021-2023 Omikhleia.
