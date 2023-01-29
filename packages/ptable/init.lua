@@ -490,7 +490,7 @@ The other options are \autodoc:parameter{cellpadding} (defaults to 4pt) and
 the borders). Both can be either a single length (applying to all
 sides) or four space-separated lengths (top, bottom, left, right).
 The \autodoc:parameter{bordercolor} option (defaults to unset, i.e. black)
-defines the color of any border defined here or later overriddden.
+defines the color of any border defined here or later overridden.
 Finally, there is the \autodoc:parameter{header} boolean option, which is false
 by default. If set to true, the first row of the table is considered to be a header,
 repeated on each page if the table spans over multiple pages.
@@ -512,7 +512,7 @@ The \autodoc:command[check=false]{\celltable} is a specific type of cell related
 multiple rows. It has only one option (\autodoc:parameter{span}) and will be addressed later
 too.
 
-Rows and regular cells, as noted, can have background color. The color specification is the
+Rows and regular cells, as noted, can have a background color. The color specification is the
 same as defined in the \autodoc:package{color} package. The global cell border and padding specifications
 from the table can be overridden on each cell.
 
@@ -545,7 +545,7 @@ For now, let us stick with regular cells. As stated, their content could
 be anything. Each cell can be regarded as an independent mini-frame.
 Notably, the “frame width” within a cell is actually that of this cell,
 meaning that any command relying on it adapts correctly.\footnote{The
-“frame height” on the other hand is not known yet as the cells will
+“frame height” on the other hand is not known yet, as the cells will
 vertically adapt automatically to the content.} That is true too for other
 frame-related relative units, such as the line length.
 
@@ -683,9 +683,9 @@ merged?}
 
 Each cell being a mini-frame, it resets its settings to their top-level (i.e. document) values.
 Cell content and options, though, are passed to a \autodoc:command{\ptable:cell:hook}.
-Would you want to define specific styling for some cells, you can re-define that command to
+Would you want to define a specific styling for some cells, you can re-define that command to
 achieve it\footnote{The default implementation supports an \autodoc:parameter{halign}
-option for horizontal cell alignement (left, right or center, or justified if not set).}.
+option for horizontal cell alignement (“left”, “right” or “center”; or “justified” by default).}.
 
 \smallskip
 
@@ -693,7 +693,7 @@ option for horizontal cell alignement (left, right or center, or justified if no
 \novbreak
 
 Due to the way the table is built by assembling boxes,
-page breaks may only occur between first-level rows.
+page breaks can only occur between first-level rows.
 With tables involving cell splitting, it might be difficult
 to get a good break-point.
 

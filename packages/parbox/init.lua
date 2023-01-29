@@ -318,8 +318,10 @@ package.documentation = [[
 \begin{document}
 A paragraph box (“parbox”) is an horizontal box (so technically an “hbox”)
 that contains, as its name implies, one or more paragraphs (so the displayed content
-is actually made of vbox’es and vertical glues). The only mandatory
-option on the \autodoc:command{\parbox} command is its \autodoc:parameter{width}.
+is actually made of vertical boxes and glues).
+
+To that effect, the \autodoc:package{parbox} package provides the
+\autodoc:command{\parbox} command. Its only mandatory option is its \autodoc:parameter{width}.
 Most of the time, the parbox will be higher that a (regular) text line,
 so the option \autodoc:parameter{valign} allows to specify the vertical alignment: top, middle,
 bottom. Alignment is relative to the current baseline.

@@ -382,7 +382,7 @@ Or also\dotfill{} \bracebox{\parbox[valign=middle,width=6cm]{\noindent This is a
 curly brace.}}
 
 \smallskip
-And as real last words, obviously, framed boxes are just horizonal boxes – so they will not be subject
+And as real last words, obviously, framed boxes are just horizonal boxes, so they will not be subject
 to line-breaking and the users are warned that they have to check that their content doesn’t cause
 the line to overflow. Also, as can be seen in the examples above, the padding and the dropped shadow may
 naturally alter the line height.

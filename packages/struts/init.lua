@@ -108,10 +108,11 @@ heights in the current font; the latter uses an alignment at the baseline skip l
 assuming it is reasonably fixed.
 
 The standalone user command is \autodoc:command{\strut[method=<method>]},
-where the method can be “character” (default) or “rule”. It returns the dimensions (for possible use
-in Lua code). If needed, the \autodoc:parameter{show} option indicates whether the rule should inserted at this
+where the method can be “character” (default) or “rule”.
+It returns the height and depth dimensions (for possible use in Lua code).
+If needed, the \autodoc:parameter{show} option indicates whether the rule should be inserted at this
 point (defaults to true, again this is mostly intended at Lua code, where you could want to compute
-the current strut dimensions without adding it to the text flow).
+the current strut dimensions \em{without} adding it to the text flow).
 
 \end{document}]]
 
