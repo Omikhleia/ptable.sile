@@ -77,14 +77,16 @@ function package:registerCommands ()
         -- The content there could be anything, we just want to be sure we get a box
         SILE.call("rebox", { phantom = true, height = strut.height, depth = strut.depth, width = SILE.length() }, {})
       end
-    else
+    elseif method == "character" then
       strut = characterStrut()
       if show then
         SILE.call("rebox", { phantom = true, width = SILE.length() }, { SILE.settings:get("strut.character") })
       end
+    else
+      SU.error("Unknown strut method '" .. method .. "'")
     end
     return strut
-  end, "Formats a strut box, shows it if requested, returns its height and depth dimentions.")
+  end, "Formats a strut box, shows it if requested, and returns its height and depth dimentions to Lua.")
 end
 
 package.documentation = [[
@@ -94,11 +96,13 @@ In professional typesetting, a “strut” is a rule with no width but a certain
 and depth, to help guaranteeing that an element has a certain minimal height and depth,
 e.g. in tabular environments or in boxes.
 
-Two possible implementations are proposed, one based on a character, defined
-via the \autodoc:setting{strut.character} setting, by default the vertical bar (|),
+Two possible implementations are proposed by the \autodoc:package{struts} package:
+one based on a character, defined via the \autodoc:setting{strut.character} setting,
+by default the vertical bar (|),
 and one relative to the current baseline skip, via the \autodoc:setting{strut.ruledepth}
 and \autodoc:setting{strut.ruleheight} settings, by default respectively 0.3bs and 1bs,
-following the same definition as in LaTeX. So they do not achieve exactly the same effect:
+following the same definition as in LaTeX.
+So they do not achieve exactly the same effect:
 the former should ideally be a character that covers the maximum ascender and descender
 heights in the current font; the latter uses an alignment at the baseline skip level
 assuming it is reasonably fixed.
