@@ -44,7 +44,7 @@ end
 -- (i.e. was only built and stored earlier).
 -- It pushes the resulting hbox to the typesetter queue,
 -- immediately followed by any passed hlist (migrating nodes).
-local function frameHbox (hbox, hlist, shadowsize, pathfunc)
+local function frameHbox (hbox, hlist, shadowsize, noindent, pathfunc)
   local shadowpadding = shadowsize or 0
   SILE.typesetter:pushHbox({
     inner = hbox,
@@ -52,13 +52,17 @@ local function frameHbox (hbox, hlist, shadowsize, pathfunc)
     height = hbox.height,
     depth = hbox.depth,
     outputYourself = function(self, typesetter, line)
-      local saveX = typesetter.frame.state.cursorX
+      local indent = 0
+      -- HACK remove default indent of 20pt (is there a better way to get this number?
+      -- SILE.settings:get("current.parindent") doesn't work)
+      if noindent then indent = SILE.measurement("20pt"):tonumber() end
+      local saveX = typesetter.frame.state.cursorX - indent
       local saveY = typesetter.frame.state.cursorY
       -- Scale to line to take into account strech/shrinkability
       local outputWidth = self:scaledWidth(line)
       -- Force advancing to get the new cursor position
       typesetter.frame:advanceWritingDirection(outputWidth)
-      local newX = typesetter.frame.state.cursorX
+      local newX = typesetter.frame.state.cursorX - indent
 
       -- Compute the target width, height, depth for the frame
       local w = (newX - saveX):tonumber() - shadowpadding
@@ -111,6 +115,13 @@ function package.declareSettings (_)
     default = SILE.measurement("3pt"),
     help = "Shadow width applied to a framed box when dropped shadow is enabled."
   })
+
+  SILE.settings:declare({
+    parameter = "framebox.noindent",
+    type = "boolean",
+    default = false,
+    help = "Disable paragraph indent before framebox."
+  })
 end
 
 -- BASIC BOX-FRAMING COMMANDS
@@ -124,11 +135,12 @@ function package:registerCommands ()
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
     local shadowcolor = shadow and SILE.color(options.shadowcolor or "black")
+    local noindent = SU.cast("boolean", options.noindent or SILE.settings:get("framebox.noindent"))
 
     local hbox, hlist = hboxer.makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
-    frameHbox(hbox, hlist, shadowsize, function(w, h, d)
+    frameHbox(hbox, hlist, shadowsize, noindent, function(w, h, d)
       local painter = PathRenderer()
       local shadowpath, path
       if shadowsize ~= 0 then
@@ -151,13 +163,14 @@ function package:registerCommands ()
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
     local shadowcolor = shadow and SILE.color(options.shadowcolor or "black")
+    local noindent = SU.cast("boolean", options.noindent or SILE.settings:get("framebox.noindent"))
 
     local cornersize = SU.cast("measurement", options.cornersize or SILE.settings:get("framebox.cornersize")):tonumber()
 
     local hbox, hlist = hboxer.makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
-    frameHbox(hbox, hlist, shadowsize, function(w, h, d)
+    frameHbox(hbox, hlist, shadowsize, noindent, function(w, h, d)
       local H = h + d
       local smallest = w < H and w or H
       cornersize = cornersize < 0.5 * smallest and cornersize or math.floor(0.5 * smallest)
@@ -182,6 +195,7 @@ function package:registerCommands ()
     local bordercolor = SILE.color(options.bordercolor or "black")
     local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
     local enlarge = SU.boolean(options.enlarge, false)
+    local noindent = SU.cast("boolean", options.noindent or SILE.settings:get("framebox.noindent"))
 
     local hbox, hlist = hboxer.makeHbox(content)
     if enlarge then
@@ -197,7 +211,7 @@ function package:registerCommands ()
     roughOpts.stroke = bordercolor
     roughOpts.fill = fillcolor
 
-    frameHbox(hbox, hlist, nil, function(w, h, d)
+    frameHbox(hbox, hlist, nil, noindent, function(w, h, d)
       local H = h + d
       local x = 0
       local y = d
@@ -219,6 +233,7 @@ function package:registerCommands ()
     local bracewidth = SU.cast("measurement", options.bracewidth or SILE.measurement("0.25em")):tonumber()
     local bracethickness = SU.cast("measurement", options.bracethickness or SILE.measurement("0.05em")):tonumber()
     local curvyness = SU.cast("number", options.curvyness or 0.6)
+    local noindent = SU.cast("boolean", options.noindent or SILE.settings:get("framebox.noindent"))
     local left, right
     if options.side == "left" or not options.side then left = true
     elseif options.side == "right" then right = true
@@ -228,7 +243,7 @@ function package:registerCommands ()
     local hbox, hlist = hboxer.makeHbox(content)
     hbox = adjustPaddingHbox(hbox, left and bracewidth + padding or 0, right and bracewidth + padding or 0, 0, 0)
 
-    frameHbox(hbox, hlist, nil, function(w, h, d)
+    frameHbox(hbox, hlist, nil, noindent, function(w, h, d)
       local painter = PathRenderer()
       local lb, rb
       if left then
@@ -259,6 +274,7 @@ function package:registerCommands ()
     local upem = font.head.unitsPerEm
     local underlinePosition = -font.post.underlinePosition / upem * fontoptions.size
     local underlineThickness = font.post.underlineThickness / upem * fontoptions.size
+    local noindent = SU.cast("boolean", options.noindent or SILE.settings:get("framebox.noindent"))
     -- End taken from the original underline command (rules package)
 
     local hbox, hlist = hboxer.makeHbox(content)
@@ -269,7 +285,7 @@ function package:registerCommands ()
     roughOpts.disableMultiStroke = true
     roughOpts.strokeWidth = underlineThickness
 
-    frameHbox(hbox, hlist, nil, function(w, h, d)
+    frameHbox(hbox, hlist, nil, noindent, function(w, h, d)
       -- NOTE: Using some arbitrary 1.5 factor, since those sketchy lines are
       -- probably best a bit more lowered than intended...
       local y = h + d + 1.5 * underlinePosition
@@ -306,6 +322,10 @@ With the well-named \autodoc:parameter{bordercolor}, \autodoc:parameter{fillcolo
 and \autodoc:parameter{shadowcolor} options, one can also specify how the box
 is \framebox[shadow=true, bordercolor=#b94051, fillcolor=#ecb0b8, shadowcolor=220]{colored.}
 The color specifications are the same as defined in the \autodoc:package{color} package.
+
+When SILE paragraph indentation is enabled, the box will be indented by default paragraph indentation level of 20pt.
+The \autodoc:parameter{noindent} option disables this, similar to SILE's built-in \noindent:
+\framebox[noindent=true]
 
 The \autodoc:command{\roundbox} command frames its content in a \roundbox{rounded box.}
 It supports the same options, so one can have a \roundbox[shadow=true]{dropped shadow} too.
