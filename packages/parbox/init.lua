@@ -110,7 +110,7 @@ local function getBaselineExtents (vboxlist)
   -- The core assumption here is that first/last vboxes are actual text lines.
   -- This could be wrong...
   -- Anyhow, the function then returns the height of the first line and the
-  -- depthof the last line, so we can use these to vertically align the parbox
+  -- depth of the last line, so we can use these to vertically align the parbox
   -- with the surrounding content.
   -- The way we do it likely assumes top-to-bottom writing...
   local baseHeight, baseDepth = SILE.length(), SILE.length()

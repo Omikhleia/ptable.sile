@@ -10,21 +10,21 @@
 -- expect all rough graphics to look different.
 -- But using math.random() there would yield always different results...
 -- and using math.randomseed() is also problematic: it's global and could be
--- affected elsewhere, etc.)
+-- affected elsewhere, etc.
 -- So one may need instead a "fake" PRNG, that spits out a seemingly uniform
 -- distribution of "random" numbers.
 
 -- (didier.willis@gmail.com) The algorithm below was just found on the
 -- Internet, where it was stated to be common in Monte Carlo randomizations.
 --
--- I am not so lazy not to check and traced it back to Sergei M. Prigarin,
+-- I am not so lazy not to check, and traced it back to Sergei M. Prigarin,
 -- _Spectral Models of Random Fields in Monte Carlo Methods_, 2001.
 -- It is a "multiplicative generator", a popular type of modelling algorithms
 -- of a sequence of pseudorandom numbers uniformly distributed on the interval
 -- (0,1), initially studied by P.H. Lehmer around 1951.
 -- This derivation, if I read correctly, has a 2^40 module and 5^17 mutiplier
 -- (cycle length 2^38).
--- For information the seeds are (X1, X2), here set to (0, 1). The algorithm
+-- For information; the seeds are (X1, X2), here set to (0, 1). The algorithm
 -- could be seeded with other values. It's not clear to me which variant was
 -- used (I didn't check the whole book...), but it seems the constraints are
 -- 0 < X1, X2 <= 2^20 and X2 being odd.

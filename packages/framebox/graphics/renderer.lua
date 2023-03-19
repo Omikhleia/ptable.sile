@@ -132,7 +132,7 @@ local DefaultPainter = pl.class({
     local qx1 = x1 + curvyness * width * dy
     local qy1 = y1 - curvyness * width * dx
     local qx2 = (x1 - 0.25 * len * dx) + (1 - curvyness) * width * dy
-    local qy2 = (y1 - 0.25*len * dy) - (1 - curvyness) * width * dx
+    local qy2 = (y1 - 0.25 *len * dy) - (1 - curvyness) * width * dx
     -- 'Middle' point (the pointing terminator of the brace)
     local tx = (x1 -  0.5 * len * dx) + width * dy
     local ty = (y1 -  0.5 * len * dy) - width * dx
@@ -221,7 +221,7 @@ local RoughPainter = pl.class({
     SU.error("Rounded rectangle not implemented in RoughPainter")
   end,
   curlyBrace = function ()
-    SU.error("Rounded rectangle not implemented in RoughPainter")
+    SU.error("Curly brace not implemented in RoughPainter")
   end,
   draw = function (self, drawable)
     local sets = drawable.sets or {}
