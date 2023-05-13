@@ -66,22 +66,15 @@ local makePathHelper = function(x, y, segments)
 end
 
 local DefaultPainter = pl.class({
-  defaultOptions = {
-    stroke = { l = 0 }, -- color
-    strokeWidth = 1,
-    -- fill (color) is not set by default, i.e. no fill.
-  },
   -- Line from (x1, y1) to (x2, y2)
-  line = function (self, x1, y1, x2, y2, options)
-    options = options and pl.tablex.union(self.defaultOptions, options) or self.defaultOptions
+  line = function (_, x1, y1, x2, y2, options)
     return {
       path = table.concat({ _r(x1), _r(y1), "m", _r(x2 - x1), _r(y2 - y1), "l" }, " "),
       options = options,
     }
   end,
   -- Path for a rectangle with upper left (x, y), with given width and height.
-  rectangle = function (self, x, y , w , h, options)
-    options = options and pl.tablex.union(self.defaultOptions, options) or self.defaultOptions
+  rectangle = function (_, x, y , w , h, options)
     return {
       path = table.concat({ _r(x), _r(y), _r(w), _r(h), "re" }, " "),
       options = options,
@@ -89,8 +82,7 @@ local DefaultPainter = pl.class({
   end,
   -- Path for a rounded rectangle with upper left (x, y), with given width,
   -- height and border radius.
-  roundedRectangle = function (self, x, y , w , h, rx, ry, options)
-    options = options and pl.tablex.union(self.defaultOptions, options) or self.defaultOptions
+  roundedRectangle = function (_, x, y , w , h, rx, ry, options)
     local arc = 4 / 3 * (1.4142135623730951 - 1)
     -- starting point
     local x0 = x + rx
@@ -106,13 +98,67 @@ local DefaultPainter = pl.class({
       options = options,
     }
   end,
+  rectangleClip = function (_, x, y , w , h, s)
+    local x0
+    local segments
+    if s >= 0 then
+      x0 = x + w
+      segments = {
+        {x + s, 0}, {0, h + s}, {-(w + s), 0}, {0, -s}, {w, 0}, {0, -h}
+      }
+    else
+      x0 = x
+      segments = {
+        {x + w, 0}, {0, s}, {s - w, 0}, {0, h - s}, {-s, 0}, {0, -h}
+      }
+    end
+    return {
+      path = makePathHelper(x0, y, segments),
+    }
+  end,
+  roundedRectangleClip = function (_, x, y , w , h, rx, ry, s)
+    local arc = 4 / 3 * (1.4142135623730951 - 1)
+    -- starting point
+    local x0
+    -- table of segments (2 coords) or bezier curves (6 coords)
+    local segments
+    if s >= 0 then
+      x0 = x + w -rx
+      segments = {
+        {rx * arc, 0, rx, ry - (ry * arc), rx, ry},
+        {0, h - 2 * ry},
+        {0, ry * arc, -rx * arc, ry, -rx, ry},
+        {-w + 2 * rx, 0},
+        {-rx * arc, 0, -rx, -ry * arc, -rx, -ry},
+        {0, ry + s},
+        {w + s, 0},
+        {0, -h -s},
+        {-(s + rx), 0},
+      }
+    else
+      x0 = x + rx
+      segments = {
+        {x + w - 2 * rx, 0},
+        {rx * arc, 0, rx, ry - ry * arc, rx, ry},
+        {0, s - ry},
+        {s - w, 0},
+        {0, h - s},
+        {rx - s, 0},
+        {-rx * arc, 0, -rx, -ry * arc, -rx, -ry},
+        {0, -h + 2 * ry},
+        {0, -ry * arc, rx * arc, -ry, rx, -ry}
+      }
+    end
+    return {
+      path = makePathHelper(x0, y, segments),
+    }
+  end,
   -- Path for a curly brace between (x1,y1) and (x2,y2),
   -- with given width and thickness in points,
   -- and curvyness from 0.5 (normal) to higher values for a more "expressive" bracket.
   -- Algorithm derived from https://gist.github.com/alexhornbake/6005176 (which used
   -- quadratic Bezier curves, but it doesn't really matter much here).
-  curlyBrace = function (self, x1, y1 , x2 , y2, width, thickness, curvyness, options)
-    options = options and pl.tablex.union(self.defaultOptions, options) or self.defaultOptions
+  curlyBrace = function (_, x1, y1 , x2 , y2, width, thickness, curvyness, options)
     -- Calculate unit vector
     local dx = x1 - x2
     local dy = y1 - y2
@@ -175,7 +221,7 @@ local DefaultPainter = pl.class({
   end,
   draw = function (_, drawable)
     local o = drawable.options
-    if o.stroke == "none" then
+    if o.strokeWidth == 0 or not o.stroke then
       if o.fill then
         -- Fill only
         return table.concat({
@@ -184,7 +230,7 @@ local DefaultPainter = pl.class({
           "f"
         }, " ")
       else
-        SU.error("Drawable has neither stroke nor fill")
+        return ""
       end
     elseif o.fill then
       -- Stroke and fill
@@ -282,9 +328,29 @@ local PathRenderer = pl.class({
     local drawable = self.adapter:rectangle(x, y, w, h, options)
     return self.adapter:draw(drawable)
   end,
+  rectangleShadow = function (self, x, y , w , h, s, options)
+    local drawable = self.adapter:rectangle(x + s, y + s, w, h, options)
+    local clip = self.adapter:rectangleClip(x, y, w, h, s)
+    local clipping = table.concat({
+      clip.path,
+      "W n"
+    }, " ")
+    drawable.path = clipping .. " ".. drawable.path
+    return "q " .. self.adapter:draw(drawable) .. " Q"
+  end,
   roundedRectangle = function (self, x, y , w , h, rx, ry, options)
     local drawable = self.adapter:roundedRectangle(x, y, w, h, rx, ry, options)
     return self.adapter:draw(drawable)
+  end,
+  roundedRectangleShadow = function (self, x, y , w , h, rx, ry, s, options)
+    local drawable = self.adapter:roundedRectangle(x + s, y + s, w, h, rx, ry, options)
+    local clip = self.adapter:roundedRectangleClip(x, y, w, h, rx, ry, s)
+    local clipping = table.concat({
+      clip.path,
+      "W n"
+    }, " ")
+    drawable.path = clipping .. " ".. drawable.path
+    return "q " .. self.adapter:draw(drawable) .. " Q"
   end,
   curlyBrace = function (self, x1, y1 , x2 , y2, width, thickness, curvyness, options)
     local drawable = self.adapter:curlyBrace( x1, y1 , x2 , y2, width, thickness, curvyness, options)

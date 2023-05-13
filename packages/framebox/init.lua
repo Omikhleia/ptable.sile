@@ -30,7 +30,7 @@ local function adjustPaddingHbox (hbox, left, right, top, bottom)
     depth = hbox.depth + bottom,
     outputYourself = function(self, typesetter, line)
       typesetter.frame:advanceWritingDirection(left)
-      self.inner:outputYourself(SILE.typesetter, line)
+      self.inner:outputYourself(typesetter, line)
       typesetter.frame:advanceWritingDirection(right)
     end
   }
@@ -74,7 +74,7 @@ local function frameHbox (hbox, hlist, shadowsize, pathfunc)
       -- Restore cursor position and output the content last (so it appears
       -- on top of the frame)
       typesetter.frame.state.cursorX = saveX
-      self.inner:outputYourself(SILE.typesetter, line)
+      self.inner:outputYourself(typesetter, line)
       typesetter.frame.state.cursorX = newX
     end
   })
@@ -119,8 +119,11 @@ function package:registerCommands ()
   self:registerCommand("framebox", function(options, content)
     local padding = SU.cast("measurement", options.padding or SILE.settings:get("framebox.padding")):tonumber()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
-    local bordercolor = SILE.color(options.bordercolor or "black")
-    local fillcolor = SILE.color(options.fillcolor or "white")
+    local bordercolor
+    if borderwidth ~= 0 then
+      bordercolor = SILE.color(options.bordercolor or "black")
+    end
+    local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
     local shadowcolor = shadow and SILE.color(options.shadowcolor or "black")
@@ -132,8 +135,8 @@ function package:registerCommands ()
       local painter = PathRenderer()
       local shadowpath, path
       if shadowsize ~= 0 then
-        shadowpath = painter:rectangle(shadowsize, d + shadowsize, w , h + d, {
-          fill = shadowcolor, stroke = 'none'
+        shadowpath = painter:rectangleShadow(0, d, w , h + d, shadowsize, {
+          fill = shadowcolor
         })
       end
       path = painter:rectangle(0, d , w , h + d, {
@@ -146,8 +149,11 @@ function package:registerCommands ()
   self:registerCommand("roundbox", function(options, content)
     local padding = SU.cast("measurement", options.padding or SILE.settings:get("framebox.padding")):tonumber()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
-    local bordercolor = SILE.color(options.bordercolor or "black")
-    local fillcolor = SILE.color(options.fillcolor or "white")
+    local bordercolor
+    if borderwidth ~= 0 then
+      bordercolor = SILE.color(options.bordercolor or "black")
+    end
+    local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
     local shadowcolor = shadow and SILE.color(options.shadowcolor or "black")
@@ -165,8 +171,8 @@ function package:registerCommands ()
       local painter = PathRenderer()
       local shadowpath, path
       if shadowsize ~= 0 then
-        shadowpath = painter:roundedRectangle(shadowsize, d + shadowsize, w , H, cornersize, cornersize, {
-          fill = shadowcolor, stroke = "none"
+        shadowpath = painter:roundedRectangleShadow(0, d , w , H, cornersize, cornersize, shadowsize, {
+          fill = shadowcolor
         })
       end
       path = painter:roundedRectangle(0, d , w , H, cornersize, cornersize, {
