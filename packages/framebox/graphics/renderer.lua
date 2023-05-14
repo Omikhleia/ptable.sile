@@ -306,8 +306,16 @@ function RoughPainter:rectangle (x, y , w , h, options)
   return self.gen:rectangle(x, y , w , h, options)
 end
 
+function RoughPainter.rectangleShadow ()
+  SU.error("Rectangle shadow not implemented in RoughPainter")
+end
+
 function RoughPainter.roundedRectangle ()
   SU.error("Rounded rectangle not implemented in RoughPainter")
+end
+
+function RoughPainter.roundedRectangleShadow ()
+  SU.error("Rounded rectangle shadow not implemented in RoughPainter")
 end
 
 function RoughPainter.curlyBrace ()
