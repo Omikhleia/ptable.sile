@@ -32,14 +32,13 @@ These packages require SILE v0.14 or upper.
 
 Installation relies on the **luarocks** package manager.
 
-To install the latest development version, you may use the provided “rockspec”:
+To install the latest version, you may use the provided “rockspec”:
 
 ```
-luarocks --lua-version 5.4 install --server=https://luarocks.org/dev ptable.sile
+luarocks install ptable.sile
 ```
 
-(Adapt to your version of Lua, if need be, and refer to the SILE manual for more
-detailed 3rd-party package installation information.)
+(Refer to the SILE manual for more detailed 3rd-party package installation information.)
 
 ## Usage
 
