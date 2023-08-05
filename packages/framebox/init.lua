@@ -5,9 +5,8 @@
 --
 -- KNOWN ISSUE: RTL and BTT writing directions are not officialy supported yet (untested)
 --
+require("silex.compat")
 local base = require("packages.base")
-
-local hboxer = require("resilient-compat.hboxing") -- Compatibility hack/shim
 
 local package = pl.class(base)
 package._name = "framebox"
@@ -78,7 +77,7 @@ local function frameHbox (hbox, hlist, shadowsize, pathfunc)
       typesetter.frame.state.cursorX = newX
     end
   })
-  hboxer.pushHlist(hlist)
+  SILE.typesetter:pushHlist(hlist)
 end
 
 -- SETTINGS
@@ -128,7 +127,7 @@ function package:registerCommands ()
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
     local shadowcolor = shadow and SILE.color(options.shadowcolor or "black")
 
-    local hbox, hlist = hboxer.makeHbox(content)
+    local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
     frameHbox(hbox, hlist, shadowsize, function(w, h, d)
@@ -160,7 +159,7 @@ function package:registerCommands ()
 
     local cornersize = SU.cast("measurement", options.cornersize or SILE.settings:get("framebox.cornersize")):tonumber()
 
-    local hbox, hlist = hboxer.makeHbox(content)
+    local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
     frameHbox(hbox, hlist, shadowsize, function(w, h, d)
@@ -189,7 +188,7 @@ function package:registerCommands ()
     local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
     local enlarge = SU.boolean(options.enlarge, false)
 
-    local hbox, hlist = hboxer.makeHbox(content)
+    local hbox, hlist = SILE.typesetter:makeHbox(content)
     if enlarge then
       hbox = adjustPaddingHbox(hbox, padding, padding, padding, padding)
     end
@@ -231,7 +230,7 @@ function package:registerCommands ()
     elseif options.side == "both" then left, right = true, true
     else SU.error("Invalid side parameter") end
 
-    local hbox, hlist = hboxer.makeHbox(content)
+    local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, left and bracewidth + padding or 0, right and bracewidth + padding or 0, 0, 0)
 
     frameHbox(hbox, hlist, nil, function(w, h, d)
@@ -267,7 +266,7 @@ function package:registerCommands ()
     local underlineThickness = font.post.underlineThickness / upem * fontoptions.size
     -- End taken from the original underline command (rules package)
 
-    local hbox, hlist = hboxer.makeHbox(content)
+    local hbox, hlist = SILE.typesetter:makeHbox(content)
     local roughOpts = {}
     if options.roughness then roughOpts.roughness = SU.cast("number", options.roughness) end
     if options.bowing then roughOpts.bowing = SU.cast("number", options.bowing) end

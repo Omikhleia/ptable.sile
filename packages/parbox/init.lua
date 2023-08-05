@@ -57,7 +57,7 @@ local function parboxFraming (options, content)
   SILE.settings:pushState()
   SILE.settings:toplevelState()
 
-  if SILE.defaultTypesetter and SILE.version < "v0.14.6" then
+  if not SILE.typesetters or not SILE.typesetters.base then
     -- Compatibility shim for SILE 0.14.0..0.14.5
     parboxTypesetter = SILE.defaultTypesetter()
   else

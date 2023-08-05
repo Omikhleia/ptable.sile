@@ -4,9 +4,9 @@
 -- 2021-2023 Didier Willis
 -- License: MIT
 --
+require("silex.compat")
 local base = require("packages.base")
 
-local hboxer = require("resilient-compat.hboxing") -- Compatibility hack/shim
 local makeParbox -- assigned at package initialization
 
 local package = pl.class(base)
@@ -166,7 +166,7 @@ local cellNode = pl.class({
   end,
   shipout = function (self)
     colorBox(self.cellBox, self.color) -- output parbox re-wrapped in color box
-    hboxer.pushHlist(self.hlist) -- re-insert the migrating content
+    SILE.typesetter:pushHlist(self.hlist) -- re-insert the migrating content
   end
 })
 
@@ -231,13 +231,13 @@ local rowNode = pl.class({
     -- We had do to the same weird magic in the parbox package too at one step, see the
     -- comment there.
     SILE.typesetter.state.nodes[#SILE.typesetter.state.nodes+1] = SILE.nodefactory.zerohbox()
-    local hbox, hlist = hboxer.makeHbox(function ()
+    local hbox, hlist = SILE.typesetter:makeHbox(function ()
       for i = 1, #self.cells do
         self.cells[i]:shipout()
       end
     end)
     colorBox(hbox, self.color) -- re-wrap it with color
-    hboxer.pushHlist(hlist) -- propagate migrating content
+    SILE.typesetter:pushHlist(hlist) -- propagate migrating content
     SILE.typesetter:leaveHmode(1) -- 1 = do not eject to page yet (see repeating header logic)
   end
 })

@@ -1,9 +1,10 @@
 --
 -- HACK/WORKAROUND FOR HBOX BUILDING LOGIC
--- Proposed as new typesetter methods in SILE, see PR:
---   https://github.com/sile-typesetter/sile/pull/1702
--- Whether it makes it or not under this exact form, we need
--- it to fix migrating content issues:
+-- THIS FILE WILL EVENTUALLY BE REMOVED, DO NOT DEPEND ON IT!
+-- See SILE PR https://github.com/sile-typesetter/sile/pull/1702
+-- It made it in SILE 0.14.9 but I had a few other packages depending on
+-- this compatibility shim, so I'm keeping it for now.
+-- We added it here early to fix migrating content issues:
 --   https://github.com/Omikhleia/ptable.sile/issues/2
 --
 -- License: MIT
