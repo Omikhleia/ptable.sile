@@ -21,7 +21,7 @@ local function _offsetOpt(x, ops, roughnessGain)
 end
 
 local function _line(x1, y1, x2, y2, o, move, overlay) -- returns an array of operations
-  local lengthSq = math.pow((x1 - x2), 2) + math.pow((y1 - y2), 2)
+  local lengthSq = (x1 - x2)^2 + (y1 - y2)^2
   local length = math.sqrt(lengthSq)
   local roughnessGain
   if length < 200 then
