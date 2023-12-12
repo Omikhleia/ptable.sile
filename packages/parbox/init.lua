@@ -2,7 +2,7 @@
 -- Paragraph blocks ("parbox") for SILE
 -- Or how to wrap width-contrained vboxes into an hbox:
 -- A building block for more advanced concepts.
--- 2021-2022 Didier Willis
+-- 2021-2023 Didier Willis
 -- License: MIT
 --
 -- Known limitations: LTR-TTB writing direction is assumed.
@@ -50,20 +50,11 @@ end
 -- Main function for parboxing content.
 -- Returns a list of vboxes.
 local function parboxFraming (options, content)
-  local oldTypesetter = SILE.typesetter
-  local parboxTypesetter
-  local innerVbox
-
   SILE.settings:pushState()
   SILE.settings:toplevelState()
 
-  if not SILE.typesetters or not SILE.typesetters.base then
-    -- Compatibility shim for SILE 0.14.0..0.14.5
-    parboxTypesetter = SILE.defaultTypesetter()
-  else
-    -- Breaking change for SILE 0.14.6 and upper
-    parboxTypesetter = SILE.typesetters.base()
-  end
+  local oldTypesetter = SILE.typesetter
+  local parboxTypesetter = SILE.typesetters.base()
 
   local hlist = {}
   local originalLeaveHmode = parboxTypesetter.leaveHmode
@@ -80,7 +71,8 @@ local function parboxFraming (options, content)
 
   SILE.process(content)
   parboxTypesetter:leaveHmode(1)
-  innerVbox = parboxTypesetter.state.outputQueue
+
+  local innerVbox = parboxTypesetter.state.outputQueue
 
   SILE.typesetter = oldTypesetter
   SILE.settings:popState()

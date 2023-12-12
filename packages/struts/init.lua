@@ -3,7 +3,6 @@
 -- 2021-2023 Didier Willis
 -- License: MIT
 --
-require("silex.compat")
 local base = require("packages.base")
 
 local package = pl.class(base)
