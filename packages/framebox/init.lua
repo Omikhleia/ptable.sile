@@ -5,7 +5,6 @@
 --
 -- KNOWN ISSUE: RTL and BTT writing directions are not officialy supported yet (untested)
 --
-require("silex.compat")
 local base = require("packages.base")
 
 local package = pl.class(base)

@@ -1,6 +1,7 @@
-\begin[papersize=a6, class=resilient.book]{document}
+\begin[papersize=a6, class=book]{document}
 \use[module=packages.framebox]
 \use[module=packages.struts]
+\use[module=packages.parbox]
 \nofolios
 \neverindent
 % Test case: migrating content in framebox and colleagues.
