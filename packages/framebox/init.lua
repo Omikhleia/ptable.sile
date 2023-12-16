@@ -182,7 +182,14 @@ function package:registerCommands ()
 
   self:registerCommand("roughbox", function(options, content)
     local padding = SU.cast("measurement", options.padding or SILE.settings:get("framebox.padding")):tonumber()
+    local border = SU.boolean(options.border, true)
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
+    if borderwidth <= 0 then
+      border = false
+      -- This is actually a stroke width, so we need to make sure it is not 0
+      -- (for hachures etc.)
+      borderwidth = SILE.settings:get("framebox.borderwidth"):tonumber()
+    end
     local bordercolor = SILE.color(options.bordercolor or "black")
     local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
     local enlarge = SU.boolean(options.enlarge, false)
@@ -198,8 +205,9 @@ function package:registerCommands ()
     roughOpts.preserveVertices = SU.boolean(options.preserve, false)
     roughOpts.disableMultiStroke = SU.boolean(options.singlestroke, false)
     roughOpts.strokeWidth = borderwidth
-    roughOpts.stroke = bordercolor
+    roughOpts.stroke = border and bordercolor or 'none'
     roughOpts.fill = fillcolor
+    roughOpts.fillStyle = options.fillstyle or 'hachure'
 
     frameHbox(hbox, hlist, nil, function(w, h, d)
       local H = h + d
@@ -331,14 +339,31 @@ As above, the \autodoc:parameter{padding}, \autodoc:parameter{borderwidth} and \
 options all apply, as well as \autodoc:parameter{fillcolor},
 so one can make a \roughbox[bordercolor=#b94051,fillcolor=220]{rough \em{hachured} box.}
 
-Sketching options are \autodoc:parameter{roughness} (numerical value indicating how rough the drawing is; 0 would
-be a perfect  rectangle, the default value is 1 and there is no upper limit to this value but a value
-over 10 is mostly useless), \autodoc:parameter{bowing} (numerical value indicating how curvy the lines are when
+Sketching options are
+\autodoc:parameter{roughness} (numerical value indicating how rough the drawing is; 0 would be a perfect rectangle, the default value is 1 and there is no upper limit to this value but a value over 10 is mostly useless),
+\autodoc:parameter{bowing} (numerical value indicating how curvy the lines are when
 drawing a sketch; a value of 0 will cause straight lines and the default value is 1),
-\autodoc:parameter{preserve} (defaults to false; when set to true, the locations of the end points are not
-randomized) and \autodoc:parameter{singlestroke} (defaults to false; if set to true, a single stroke is applied
+\autodoc:parameter{preserve} (defaults to false; when set to true, the locations of the end points are not randomized),
+\autodoc:parameter{singlestroke} (defaults to false; if set to true, a single stroke is applied
 to sketch the shape instead of multiple strokes).
-For instance, here is a single-stroked \roughbox[bordercolor=#59b24c, singlestroke=true]{rough box.}
+For instance, here is a single-stroked \roughbox[bordercolor=#59b24c, singlestroke=true]{rough box,}
+and a cross-hatched \roughbox[border=false, fillcolor=#ecebbd, fillstyle=cross-hatch]{rough box.}
+
+The last example also shows the \autodoc:parameter{fillstyle} option (defaults to “hachure”).
+It can also be set to “solid”, “zigzag”, “cross-hatch”, “dashed”, “zigzag-line” or “dots”.
+
+\smallskip
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true]{Hachure,}\kern[width=0.8em]
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=solid]{solid,}\kern[width=0.8em]
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=zigzag]{zigzag,}\kern[width=0.8em]
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=cross-hatch]{cross-hatch,}\kern[width=0.8em]
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=dashed]{dashed,}\kern[width=0.8em]
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=zigzag-line]{zigag-line.}\kern[width=0.8em]
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=dots]{and dots.}
+
+\smallskip
+The border width is actually the stroke width, also used for the hachures, etc.
+Use \autodoc:parameter{border=false} if you want to disable the border and only keep the fill.
 
 Compared to the previous box framing commands, rough boxes by default do not take up more horizontal
 and vertical space due to their padding, as if the sketchy box was indeed manually added

@@ -11,7 +11,7 @@
 --   one.
 --
 
-local RoughGenerator = require("packages.framebox.graphics.rough").RoughGenerator
+local RoughGenerator = require("packages.framebox.rough-lua.generator").RoughGenerator
 
 -- HELPERS
 
@@ -247,6 +247,18 @@ function DefaultPainter.curlyBrace (_, x1, y1 , x2 , y2, width, thickness, curvy
   }
 end
 
+function DefaultPainter.ellipse ()
+  SU.error("Ellipse not implemented in DefaultPainter")
+end
+
+function DefaultPainter.circle ()
+  SU.error("Circle not implemented in DefaultPainter")
+end
+
+function DefaultPainter.arc ()
+  SU.error("Arc not implemented in DefaultPainter")
+end
+
 function DefaultPainter.draw (_, drawable, clippable)
   local o = drawable.options
   local path
@@ -306,6 +318,18 @@ function RoughPainter:rectangle (x, y , w , h, options)
   return self.gen:rectangle(x, y , w , h, options)
 end
 
+function RoughPainter:ellipse (x, y , w , h, options)
+  return self.gen:ellipse(x, y , w , h, options)
+end
+
+function RoughPainter:circle (x, y , diameter, options)
+  return self.gen:circle(x, y , diameter, options)
+end
+
+function RoughPainter:arc (x, y , w , h, start, stop, closed, options)
+  return self.gen:arc(x, y , w , h, start, stop, closed, options)
+end
+
 function RoughPainter.rectangleShadow ()
   SU.error("Rectangle shadow not implemented in RoughPainter")
 end
@@ -337,7 +361,13 @@ function RoughPainter:draw (drawable)
           "S"
       }, " ")
     elseif drawing.type == "fillPath" then
-      SU.error("Path filling not yet implemented.")
+      print("fillPath")
+      path = table.concat({
+        self:opsToPath(drawing, precision),
+        makeColorHelper(o.fill, false),
+        _r(o.strokeWidth), "w",
+        "f"
+      }, " ")
     elseif drawing.type == "fillSketch" then
       path = table.concat({
         self:opsToPath(drawing, precision),
@@ -383,6 +413,21 @@ end
 
 function PathRenderer:rectangle (x, y , w , h, options)
   local drawable = self.adapter:rectangle(x, y, w, h, options)
+  return self.adapter:draw(drawable)
+end
+
+function PathRenderer:ellipse (x, y , w , h, options)
+  local drawable = self.adapter:ellipse(x, y, w, h, options)
+  return self.adapter:draw(drawable)
+end
+
+function PathRenderer:circle (x, y , w , h, options)
+  local drawable = self.adapter:circle(x, y, w, h, options)
+  return self.adapter:draw(drawable)
+end
+
+function PathRenderer:arc (x, y , w , h, start, stop, closed, options)
+  local drawable = self.adapter:arc(x, y, w, h, start, stop, closed, options)
   return self.adapter:draw(drawable)
 end
 
