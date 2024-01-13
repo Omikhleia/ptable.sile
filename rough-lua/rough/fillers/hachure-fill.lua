@@ -12,7 +12,7 @@
 -- Copyright (c) 2023 Preet Shihn
 --
 
-local jsshims = require("packages.framebox.rough-lua.jsshims")
+local jsshims = require("rough-lua.rough.jsshims")
 local array_splice = jsshims.array_splice
 local math_round = jsshims.math_round
 

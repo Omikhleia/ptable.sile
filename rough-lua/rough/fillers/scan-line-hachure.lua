@@ -7,9 +7,9 @@
 -- License MIT
 -- Copyright (c) 2019 Preet Shihn
 --
-local hachureLines = require("packages.framebox.rough-lua.fillers.hachure-fill").hachureLines
+local hachureLines = require("rough-lua.rough.fillers.hachure-fill").hachureLines
 
-local jsshims = require("packages.framebox.rough-lua.jsshims")
+local jsshims = require("rough-lua.rough.jsshims")
 local math_round = jsshims.math_round
 
 local PRNG = require("packages.framebox.graphics.prng")

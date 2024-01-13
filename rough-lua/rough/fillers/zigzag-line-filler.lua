@@ -7,10 +7,10 @@
 -- License MIT
 -- Copyright (c) 2019 Preet Shihn
 --
-local polygonHachureLines = require("packages.framebox.rough-lua.fillers.scan-line-hachure").polygonHachureLines
-local lineLength = require("packages.framebox.rough-lua.geometry").lineLength
+local polygonHachureLines = require("rough-lua.rough.fillers.scan-line-hachure").polygonHachureLines
+local lineLength = require("rough-lua.rough.geometry").lineLength
 
-local jsshims = require("packages.framebox.rough-lua.jsshims")
+local jsshims = require("rough-lua.rough.jsshims")
 local math_round = jsshims.math_round
 
 local ZigZagLineFiller = pl.class()

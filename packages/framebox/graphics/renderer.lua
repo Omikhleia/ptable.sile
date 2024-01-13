@@ -11,7 +11,7 @@
 --   one.
 --
 
-local RoughGenerator = require("packages.framebox.rough-lua.generator").RoughGenerator
+local RoughGenerator = require("rough-lua.rough.generator").RoughGenerator
 
 -- HELPERS
 

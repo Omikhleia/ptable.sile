@@ -7,8 +7,8 @@
 -- License MIT
 -- Copyright (c) 2019 Preet Shihn
 --
-local polygonHachureLines = require("packages.framebox.rough-lua.fillers.scan-line-hachure").polygonHachureLines
-local lineLength = require("packages.framebox.rough-lua.geometry").lineLength
+local polygonHachureLines = require("rough-lua.rough.fillers.scan-line-hachure").polygonHachureLines
+local lineLength = require("rough-lua.rough.geometry").lineLength
 
 local DotFiller = pl.class()
 

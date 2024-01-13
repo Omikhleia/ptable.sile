@@ -7,7 +7,7 @@
 -- License MIT
 -- Copyright (c) 2019 Preet Shihn
 --
-local renderer = require("packages.framebox.rough-lua.renderer")
+local renderer = require("rough-lua.rough.renderer")
 local line, rectangle,
       ellipseWithParams, generateEllipseParams,
       arc, curve, linearPath,
@@ -24,13 +24,13 @@ local line, rectangle,
 -- local pointsOnPath = require("packages.framebox.points-on-curve").pointsOnPath
 -- local pointsOnBezierCurves = require("packages.framebox.points-on-curve").pointsOnBezierCurves
 local pointsOnPath = function (_, _, _)
-  SU.error("Not implemented")
+  error("Not implemented")
 end
 local curveToBezier = function (_)
-  SU.error("Not implemented")
+  error("Not implemented")
 end
 local pointsOnBezierCurves = function (_, _, _)
-  SU.error("Not implemented")
+  error("Not implemented")
 end
 
 

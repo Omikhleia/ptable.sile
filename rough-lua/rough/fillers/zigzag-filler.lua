@@ -7,9 +7,9 @@
 -- License MIT
 -- Copyright (c) 2019 Preet Shihn
 --
-local HachureFiller = require("packages.framebox.rough-lua.fillers.hachure-filler").HachureFiller
-local polygonHachureLines = require("packages.framebox.rough-lua.fillers.scan-line-hachure").polygonHachureLines
-local lineLength = require("packages.framebox.rough-lua.geometry").lineLength
+local HachureFiller = require("rough-lua.rough.fillers.hachure-filler").HachureFiller
+local polygonHachureLines = require("rough-lua.rough.fillers.scan-line-hachure").polygonHachureLines
+local lineLength = require("rough-lua.rough.geometry").lineLength
 
 local ZigZagFiller = pl.class(HachureFiller)
 

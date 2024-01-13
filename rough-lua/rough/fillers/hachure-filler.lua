@@ -7,7 +7,7 @@
 -- License MIT
 -- Copyright (c) 2019 Preet Shihn
 --
-local polygonHachureLines = require("packages.framebox.rough-lua.fillers.scan-line-hachure").polygonHachureLines
+local polygonHachureLines = require("rough-lua.rough.fillers.scan-line-hachure").polygonHachureLines
 
 local HachureFiller = pl.class()
 

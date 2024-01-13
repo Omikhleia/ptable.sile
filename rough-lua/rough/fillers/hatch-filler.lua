@@ -7,7 +7,7 @@
 -- License MIT
 -- Copyright (c) 2019 Preet Shihn
 --
-local HachureFiller = require("packages.framebox.rough-lua.fillers.hachure-filler").HachureFiller
+local HachureFiller = require("rough-lua.rough.fillers.hachure-filler").HachureFiller
 
 local HatchFiller = pl.class(HachureFiller)
 

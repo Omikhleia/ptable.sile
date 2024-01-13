@@ -7,12 +7,12 @@
 -- License MIT
 -- Copyright (c) 2019 Preet Shihn
 --
-local HachureFiller = require("packages.framebox.rough-lua.fillers.hachure-filler").HachureFiller
-local ZigZagFiller = require("packages.framebox.rough-lua.fillers.zigzag-filler").ZigZagFiller
-local HatchFiller = require("packages.framebox.rough-lua.fillers.hatch-filler").HatchFiller
-local DotFiller = require("packages.framebox.rough-lua.fillers.dot-filler").DotFiller
-local DashedFiller = require("packages.framebox.rough-lua.fillers.dashed-filler").DashedFiller
-local ZigZagLineFiller = require("packages.framebox.rough-lua.fillers.zigzag-line-filler").ZigZagLineFiller
+local HachureFiller = require("rough-lua.rough.fillers.hachure-filler").HachureFiller
+local ZigZagFiller = require("rough-lua.rough.fillers.zigzag-filler").ZigZagFiller
+local HatchFiller = require("rough-lua.rough.fillers.hatch-filler").HatchFiller
+local DotFiller = require("rough-lua.rough.fillers.dot-filler").DotFiller
+local DashedFiller = require("rough-lua.rough.fillers.dashed-filler").DashedFiller
+local ZigZagLineFiller = require("rough-lua.rough.fillers.zigzag-line-filler").ZigZagLineFiller
 
 local fillers = {}
 
