@@ -20,18 +20,12 @@ local line, rectangle,
         renderer.patternFillArc, renderer.patternFillPolygons, renderer.solidFillPolygon
 -- PORTING NOTE:
 -- I ported the module but haven't tested it for now
--- local curveToBezier = require("packages.framebox.points-on-curve.curve-to-bezier").curveToBezier
--- local pointsOnPath = require("packages.framebox.points-on-curve").pointsOnPath
--- local pointsOnBezierCurves = require("packages.framebox.points-on-curve").pointsOnBezierCurves
-local pointsOnPath = function (_, _, _)
-  error("Not implemented")
-end
-local curveToBezier = function (_)
-  error("Not implemented")
-end
-local pointsOnBezierCurves = function (_, _, _)
-  error("Not implemented")
-end
+-- local curveToBezier = require("rough-lua.points-on-curve.curve-to-bezier").curveToBezier
+-- local pointsOnPath = require("rough-lua.points-on-curve").pointsOnPath
+-- local pointsOnBezierCurves = require("rough-lua.points-on-curve").pointsOnBezierCurves
+local pointsOnPath = function () error("Not implemented") end
+local curveToBezier = function () error("Not implemented") end
+local pointsOnBezierCurves = function () error("Not implemented") end
 
 
 local RoughGenerator = pl.class({

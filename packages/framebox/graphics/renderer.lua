@@ -12,6 +12,7 @@
 --
 
 local RoughGenerator = require("rough-lua.rough.generator").RoughGenerator
+local PRNG = require("prng-prigarin")
 
 -- HELPERS
 
@@ -305,9 +306,15 @@ function DefaultPainter.draw (_, drawable, clippable)
 end
 
 local RoughPainter = pl.class()
+local prng = PRNG()
 
 function RoughPainter:_init (options)
-  self.gen = RoughGenerator(options)
+  local o = options or {}
+  if not o.randomizer then
+    o.randomizer = prng -- use common 'static' PRNG instance
+    -- so that all sketchy drawings look random but reproducible
+  end
+  self.gen = RoughGenerator(o)
 end
 
 function RoughPainter:line (x1, y1, x2, y2, options)

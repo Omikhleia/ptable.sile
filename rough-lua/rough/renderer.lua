@@ -10,13 +10,11 @@
 
 local jsshims = require("rough-lua.rough.jsshims")
 local array_concat = jsshims.array_concat
-
-local PRNG = require("packages.framebox.graphics.prng")
-local prng = PRNG()
+local PRNG = require("prng-prigarin")
 
 -- PORTING NOTE:
 -- I ported path-data-parser but haven't tested it for now
--- local pathDataParser = require("packages.framebox.path-data-parser")
+-- local pathDataParser = require("rough-lua.path-data-parser")
 -- local parsePath, normalize, absolutize = pathDataParser.parsePath, pathDataParser.normalize, pathDataParser.absolutize
 local normalize = function () error("Not yet implemented") end
 local absolutize = function () error("Not yet implemented") end
@@ -24,14 +22,24 @@ local parsePath = function () error("Not yet implemented") end
 
 local getFiller = require("rough-lua.rough.fillers.filler").getFiller
 
-local function cloneOptionsAlterSeed (o)
-  -- PORTING NOTE:
-  -- Option to alter seed no implemented.
-  return o
+local function cloneOptionsAlterSeed (ops)
+  local result = pl.tablex.copy(ops)
+  result.randomizer = nil
+  if ops.seed then
+    result.seed = ops.seed + 1
+  end
+  return result
+end
+
+local function random (ops)
+  if not ops.randomizer then
+    ops.randomizer = PRNG(ops.seed or 0)
+  end
+  return ops.randomizer:random()
 end
 
 local function _offset (min, max, ops, roughnessGain)
-  return ops.roughness * (roughnessGain or 1) * ((prng:random() * (max - min)) + min)
+  return ops.roughness * (roughnessGain or 1) * ((random(ops) * (max - min)) + min)
 end
 
 local function _offsetOpt (x, ops, roughnessGain)
@@ -55,7 +63,7 @@ local function _line (x1, y1, x2, y2, o, move, overlay)
     offset = length / 10
   end
   local halfOffset = offset / 2
-  local divergePoint = 0.2 + prng:random() * 0.2
+  local divergePoint = 0.2 + random(o) * 0.2
   local midDispX = o.bowing * o.maxRandomnessOffset * (y2 - y1) / 200
   local midDispY = o.bowing * o.maxRandomnessOffset * (x1 - x2) / 200
   midDispX = _offsetOpt(midDispX, o, roughnessGain)

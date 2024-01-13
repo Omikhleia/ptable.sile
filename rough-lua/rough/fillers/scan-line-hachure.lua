@@ -12,8 +12,7 @@ local hachureLines = require("rough-lua.rough.fillers.hachure-fill").hachureLine
 local jsshims = require("rough-lua.rough.jsshims")
 local math_round = jsshims.math_round
 
-local PRNG = require("packages.framebox.graphics.prng")
-local prng = PRNG()
+local PRNG = require("prng-prigarin")
 
 local function polygonHachureLines (polygonList, o)
   local angle = o.hachureAngle + 90
@@ -24,7 +23,10 @@ local function polygonHachureLines (polygonList, o)
   gap = math_round(math.max(gap, 0.1))
   local skipOffset = 1
   if o.roughness >= 1 then
-    if prng:random() > 0.7 then
+    -- PORTING NOTE: Slightly different approach to randomization.
+    -- We never rely on math.random() but always use our PRNG.
+    local rand = o.randomizer and o.randomizer:random() or PRNG(o.seed or 0):random()
+    if rand > 0.7 then
       skipOffset = gap
     end
   end

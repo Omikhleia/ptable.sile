@@ -343,7 +343,7 @@ Sketching options are
 \autodoc:parameter{roughness} (numerical value indicating how rough the drawing is; 0 would be a perfect rectangle, the default value is 1 and there is no upper limit to this value but a value over 10 is mostly useless),
 \autodoc:parameter{bowing} (numerical value indicating how curvy the lines are when
 drawing a sketch; a value of 0 will cause straight lines and the default value is 1),
-\autodoc:parameter{preserve} (defaults to false; when set to true, the locations of the end points are not randomized),
+\autodoc:parameter{preserve} (defaults to false; when set to true, the \roughbox[bordercolor=#22427c, preserve=true]{locations} of the end points are not randomized),
 \autodoc:parameter{singlestroke} (defaults to false; if set to true, a single stroke is applied
 to sketch the shape instead of multiple strokes).
 For instance, here is a single-stroked \roughbox[bordercolor=#59b24c, singlestroke=true]{rough box,}
