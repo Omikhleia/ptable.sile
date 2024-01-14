@@ -12,13 +12,9 @@ local jsshims = require("rough-lua.rough.jsshims")
 local array_concat = jsshims.array_concat
 local PRNG = require("prng-prigarin")
 
--- PORTING NOTE:
--- I ported path-data-parser but haven't tested it for now
--- local pathDataParser = require("rough-lua.path-data-parser")
--- local parsePath, normalize, absolutize = pathDataParser.parsePath, pathDataParser.normalize, pathDataParser.absolutize
-local normalize = function () error("Not yet implemented") end
-local absolutize = function () error("Not yet implemented") end
-local parsePath = function () error("Not yet implemented") end
+local pathDataParser = require("rough-lua.untested.path-data-parser")
+local parsePath, normalize, absolutize
+        = pathDataParser.parsePath, pathDataParser.normalize, pathDataParser.absolutize
 
 local getFiller = require("rough-lua.rough.fillers.filler").getFiller
 

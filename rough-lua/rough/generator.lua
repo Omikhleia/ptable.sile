@@ -18,14 +18,9 @@ local line, rectangle,
         renderer.arc, renderer.curve, renderer.linearPath,
         renderer.svgPath,
         renderer.patternFillArc, renderer.patternFillPolygons, renderer.solidFillPolygon
--- PORTING NOTE:
--- I ported the module but haven't tested it for now
--- local curveToBezier = require("rough-lua.points-on-curve.curve-to-bezier").curveToBezier
--- local pointsOnPath = require("rough-lua.points-on-curve").pointsOnPath
--- local pointsOnBezierCurves = require("rough-lua.points-on-curve").pointsOnBezierCurves
-local pointsOnPath = function () error("Not implemented") end
-local curveToBezier = function () error("Not implemented") end
-local pointsOnBezierCurves = function () error("Not implemented") end
+local curveToBezier = require("rough-lua.untested.points-on-curve.curve-to-bezier").curveToBezier
+local pointsOnPath = require("rough-lua.untested.points-on-curve").pointsOnPath
+local pointsOnBezierCurves = require("rough-lua.untested.points-on-curve").pointsOnBezierCurves
 
 
 local RoughGenerator = pl.class({
