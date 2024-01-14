@@ -1,0 +1,23 @@
+\begin[papersize=a5,class=plain]{document}
+\neverindent
+\nofolios
+\use[module=packages.framebox]
+\use[module=packages.background]
+\language[main=en]
+\font[family=Libertinus Serif, size=20pt]
+
+\center{\font[weight=700]{Do Boxes Still Rock?}}
+
+\bigskip
+
+\background[color=antiquewhite]
+
+\framebox{Lorem ipsum} \framebox[shadow=true]{Lorem ipsum} \framebox[shadow=true, borderwidth=0]{Lorem ipsum}
+
+\framebox[fillcolor=pink]{Lorem ipsum} \framebox[fillcolor=pink, shadow=true]{Lorem ipsum} \framebox[fillcolor=pink, borderwidth=0, shadow=true]{Lorem ipsum}
+
+\roundbox{Lorem ipsum} \roundbox[shadow=true]{Lorem ipsum} \roundbox[shadow=true, borderwidth=0]{Lorem ipsum}
+
+\roundbox[fillcolor=pink]{Lorem ipsum} \roundbox[fillcolor=pink, shadow=true]{Lorem ipsum} \roundbox[fillcolor=pink, borderwidth=0, shadow=true]{Lorem ipsum}
+
+\end{document}
