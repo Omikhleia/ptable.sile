@@ -75,4 +75,18 @@ sherlock.holmes@sile.org\par
 \end{roughbox}
 \end{center}
 
+\bigskip
+
+\begin{center}
+\begin[padding=1em, bordercolor=#ff7f50, fillcolor=#ecebbd, fillstyle=cross-hatch, enlarge=true]{roughbox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{roughbox}
+\end{center}
+
 \end{document}
