@@ -352,7 +352,7 @@ For instance, here is a single-stroked \roughbox[bordercolor=#59b24c, singlestro
 and a cross-hatched \roughbox[border=false, fillcolor=#ecebbd, fillstyle=cross-hatch]{rough box.}
 
 The last example also shows the \autodoc:parameter{fillstyle} option (defaults to “hachure”).
-It can also be set to “solid”, “zigzag”, “cross-hatch”, “dashed”, “zigzag-line” or “dots”.
+It can also be set to “solid”, “zigzag”, “cross-hatch”, “dashed” or “zigzag-line”.
 
 \smallskip
 \roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true]{Hachure,}\kern[width=0.8em]
@@ -360,8 +360,7 @@ It can also be set to “solid”, “zigzag”, “cross-hatch”, “dashed”
 \roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=zigzag]{zigzag,}\kern[width=0.8em]
 \roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=cross-hatch]{cross-hatch,}\kern[width=0.8em]
 \roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=dashed]{dashed,}\kern[width=0.8em]
-\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=zigzag-line]{zigag-line.}\kern[width=0.8em]
-\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=dots]{and dots.}
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=zigzag-line]{zigag-line.}
 
 \smallskip
 The border width is actually the stroke width, also used for the hachures, etc.
