@@ -28,10 +28,13 @@ end
 
 --- Builds a PDF graphics color (stroke or fill) from a SILE parsed color.
 --
--- @tparam  table     color     SILE color object
--- @tparam  boolean   stroke    Stroke or fill
--- @treturn string              PDF graphics color
+-- @tparam  table|nil  color     SILE color object
+-- @tparam  boolean    stroke    Stroke or fill
+-- @treturn string               PDF graphics color
 local function makeColorHelper (color, stroke)
+  if not color then
+    return "" -- let current color be used
+  end
   local colspec
   local colop
   if color.r then -- RGB
@@ -81,25 +84,43 @@ end
 
 local DefaultPainter = pl.class()
 
+DefaultPainter.defaultOptions = {
+  strokeWidth = 1,
+}
+
+function DefaultPainter:_init (options)
+  if options then
+    self.defaultOptions = self:_o(options)
+  end
+end
+
+function DefaultPainter:_o (options)
+  return options and pl.tablex.union(self.defaultOptions, options) or self.defaultOptions
+end
+
 -- Line from (x1, y1) to (x2, y2).
-function DefaultPainter.line (_, x1, y1, x2, y2, options)
+function DefaultPainter:line (x1, y1, x2, y2, options)
+  local o = self:_o(options)
   return {
     path = table.concat({ _r(x1), _r(y1), "m", _r(x2 - x1), _r(y2 - y1), "l" }, " "),
-    options = options,
+    options = o,
   }
 end
 
 --- Path for a rectangle with upper left (x, y), with given width and height.
-function DefaultPainter.rectangle (_, x, y , w , h, options)
+function DefaultPainter:rectangle (x, y , w , h, options)
+  local o = self:_o(options)
   return {
     path = table.concat({ _r(x), _r(y), _r(w), _r(h), "re" }, " "),
-    options = options,
+    options = o,
   }
 end
 
 --- Path for a rounded rectangle with upper left (x, y), with given width,
 -- height and border radius.
-function DefaultPainter.roundedRectangle (_, x, y , w , h, rx, ry, options)
+function DefaultPainter:roundedRectangle (x, y , w , h, rx, ry, options)
+  local o = self:_o(options)
+
   local arc = 4 / 3 * (1.4142135623730951 - 1)
   -- starting point
   local x0 = x + rx
@@ -116,7 +137,7 @@ function DefaultPainter.roundedRectangle (_, x, y , w , h, rx, ry, options)
   }
   return {
     path = makePathHelper(x0, y, segments),
-    options = options,
+    options = o,
   }
 end
 
@@ -186,7 +207,9 @@ end
 -- Algorithm derived from https://gist.github.com/alexhornbake/6005176 (which used
 -- quadratic Bezier curves, but it doesn't really matter much here).
 --
-function DefaultPainter.curlyBrace (_, x1, y1 , x2 , y2, width, thickness, curvyness, options)
+function DefaultPainter:curlyBrace (x1, y1 , x2 , y2, width, thickness, curvyness, options)
+  local o = self:_o(options)
+
   -- Calculate unit vector
   local dx = x1 - x2
   local dy = y1 - y2
@@ -244,7 +267,7 @@ function DefaultPainter.curlyBrace (_, x1, y1 , x2 , y2, width, thickness, curvy
       -- Round line caps and line joins
       1, "J", 1, "j",
     }, " "),
-    options = options
+    options = o
   }
 end
 
@@ -264,8 +287,8 @@ function DefaultPainter.draw (_, drawable, clippable)
   local o = drawable.options
   local path
 
-  if o.strokeWidth == 0 or not o.stroke then
-    if o.fill then
+  if o.strokeWidth == 0 or o.stroke == 'none' then
+    if o.fill ~= 'none' then
       -- Fill only
       path = table.concat({
         drawable.path,
@@ -275,7 +298,7 @@ function DefaultPainter.draw (_, drawable, clippable)
     else
       path = ""
     end
-  elseif o.fill then
+  elseif o.fill ~= 'none' then
     -- Stroke and fill
     path = table.concat({
       drawable.path,
@@ -368,7 +391,6 @@ function RoughPainter:draw (drawable)
           "S"
       }, " ")
     elseif drawing.type == "fillPath" then
-      print("fillPath")
       path = table.concat({
         self:opsToPath(drawing, precision),
         makeColorHelper(o.fill, false),
