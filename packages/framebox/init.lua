@@ -119,12 +119,12 @@ function package:registerCommands ()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
     local bordercolor
     if borderwidth ~= 0 then
-      bordercolor = SILE.color(options.bordercolor or "black")
+      bordercolor = options.bordercolor and SILE.color(options.bordercolor)
     end
-    local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
+    local fillcolor = options.fillcolor and SILE.color(options.fillcolor) or 'none'
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
-    local shadowcolor = shadow and SILE.color(options.shadowcolor or "black")
+    local shadowcolor = shadow and options.shadowcolor and SILE.color(options.shadowcolor)
 
     local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
@@ -134,7 +134,8 @@ function package:registerCommands ()
       local shadowpath, path
       if shadowsize ~= 0 then
         shadowpath = painter:rectangleShadow(0, d, w , h + d, shadowsize, {
-          fill = shadowcolor
+          fill = shadowcolor,
+          stroke = 'none'
         })
       end
       path = painter:rectangle(0, d , w , h + d, {
@@ -149,12 +150,12 @@ function package:registerCommands ()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
     local bordercolor
     if borderwidth ~= 0 then
-      bordercolor = SILE.color(options.bordercolor or "black")
+      bordercolor = options.bordercolor and SILE.color(options.bordercolor)
     end
-    local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
+    local fillcolor = options.fillcolor and SILE.color(options.fillcolor) or 'none'
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
-    local shadowcolor = shadow and SILE.color(options.shadowcolor or "black")
+    local shadowcolor = shadow and options.shadowcolor and SILE.color(options.shadowcolor)
 
     local cornersize = SU.cast("measurement", options.cornersize or SILE.settings:get("framebox.cornersize")):tonumber()
 
@@ -170,7 +171,8 @@ function package:registerCommands ()
       local shadowpath, path
       if shadowsize ~= 0 then
         shadowpath = painter:roundedRectangleShadow(0, d , w , H, cornersize, cornersize, shadowsize, {
-          fill = shadowcolor
+          fill = shadowcolor,
+          stroke = 'none'
         })
       end
       path = painter:roundedRectangle(0, d , w , H, cornersize, cornersize, {
@@ -190,7 +192,7 @@ function package:registerCommands ()
       -- (for hachures etc.)
       borderwidth = SILE.settings:get("framebox.borderwidth"):tonumber()
     end
-    local bordercolor = SILE.color(options.bordercolor or "black")
+    local bordercolor = options.bordercolor and SILE.color(options.bordercolor)
     local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
     local enlarge = SU.boolean(options.enlarge, false)
 
@@ -227,7 +229,7 @@ function package:registerCommands ()
   self:registerCommand("bracebox", function(options, content)
     local padding = SU.cast("measurement", options.padding or SILE.measurement("0.25em")):tonumber()
     local strokewidth = SU.cast("measurement", options.strokewidth or SILE.measurement("0.033em")):tonumber()
-    local bracecolor = SILE.color(options.bracecolor or "black")
+    local bracecolor = options.bracecolor and SILE.color(options.bracecolor)
     local bracewidth = SU.cast("measurement", options.bracewidth or SILE.measurement("0.25em")):tonumber()
     local bracethickness = SU.cast("measurement", options.bracethickness or SILE.measurement("0.05em")):tonumber()
     local curvyness = SU.cast("number", options.curvyness or 0.6)
@@ -350,7 +352,7 @@ For instance, here is a single-stroked \roughbox[bordercolor=#59b24c, singlestro
 and a cross-hatched \roughbox[border=false, fillcolor=#ecebbd, fillstyle=cross-hatch]{rough box.}
 
 The last example also shows the \autodoc:parameter{fillstyle} option (defaults to “hachure”).
-It can also be set to “solid”, “zigzag”, “cross-hatch”, “dashed”, “zigzag-line” or “dots”.
+It can also be set to “solid”, “zigzag”, “cross-hatch”, “dashed” or “zigzag-line”.
 
 \smallskip
 \roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true]{Hachure,}\kern[width=0.8em]
@@ -358,8 +360,7 @@ It can also be set to “solid”, “zigzag”, “cross-hatch”, “dashed”
 \roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=zigzag]{zigzag,}\kern[width=0.8em]
 \roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=cross-hatch]{cross-hatch,}\kern[width=0.8em]
 \roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=dashed]{dashed,}\kern[width=0.8em]
-\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=zigzag-line]{zigag-line.}\kern[width=0.8em]
-\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=dots]{and dots.}
+\roughbox[bordercolor=150, fillcolor=#bcc6d7, singlestroke=true, fillstyle=zigzag-line]{zigag-line.}
 
 \smallskip
 The border width is actually the stroke width, also used for the hachures, etc.
@@ -380,7 +381,7 @@ As for fine-tuning options, \autodoc:parameter{padding} controls the space betwe
 \autodoc:parameter{bracewidth} defines the width of the whole brace (defaults to 0.25em),
 \autodoc:parameter{strokewidth} (defaults to 0.033em) and \autodoc:parameter{bracethickness} (0.05em) define
 the drawing characteristics of the brace.
-Its color, black by default, can be changed with \autodoc:parameter{bracecolor}.
+Its color can be changed with \autodoc:parameter{bracecolor}.
 Finally, \autodoc:parameter{curvyness} (defaults to 0.6) is a number between 0.5 and 1, defining how curvy
 is the brace: 0.5 is the “normal” value (quite straight) and higher values giving a more “expressive”
 brace (anything above 0.725 is probably quite useless). As can be seen with the default values,

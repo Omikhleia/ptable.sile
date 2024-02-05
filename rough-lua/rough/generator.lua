@@ -28,7 +28,9 @@ local RoughGenerator = pl.class({
     maxRandomnessOffset = 2,
     roughness = 1,
     bowing = 1,
-    stroke = { l = 0 }, -- PORTING NOTE: COMPAT WITH SILE PARSED COLORS
+    stroke = nil, -- PORTING NOTE: Different from the original Javacript
+                  -- implementation: We don't want to default to black,
+                  -- but let the current color apply.
     strokeWidth = 1,
     curveTightness = 0,
     curveFitting = 0.95,
