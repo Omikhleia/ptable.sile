@@ -259,38 +259,6 @@ function package:registerCommands ()
     end)
   end, "Frames content in a box with curly brace(s).")
 
-  -- EXPERIMENTAL (UNDOCUMENTED)
-
-  -- This would need to be reimplemented and checked after multiline effects
-  -- (e.g. multiline links and underline) are possibly added to the
-  -- typetter.
-  self:registerCommand("roughunder", function (options, content)
-    -- Begin taken from the original underline command (rules package)
-    local ot = require("core/opentype-parser")
-    local fontoptions = SILE.font.loadDefaults({})
-    local face = SILE.font.cache(fontoptions, SILE.shaper.getFace)
-    local font = ot.parseFont(face)
-    local upem = font.head.unitsPerEm
-    local underlinePosition = -font.post.underlinePosition / upem * fontoptions.size
-    local underlineThickness = font.post.underlineThickness / upem * fontoptions.size
-    -- End taken from the original underline command (rules package)
-
-    local hbox, hlist = SILE.typesetter:makeHbox(content)
-    local roughOpts = {}
-    if options.roughness then roughOpts.roughness = SU.cast("number", options.roughness) end
-    if options.bowing then roughOpts.bowing = SU.cast("number", options.bowing) end
-    roughOpts.preserveVertices = true
-    roughOpts.disableMultiStroke = true
-    roughOpts.strokeWidth = underlineThickness
-
-    frameHbox(hbox, hlist, nil, function(w, h, d)
-      -- NOTE: Using some arbitrary 1.5 factor, since those sketchy lines are
-      -- probably best a bit more lowered than intended...
-      local y = h + d + 1.5 * underlinePosition
-      local painter = PathRenderer(RoughPainter())
-      return painter:line(0, y, w, y, roughOpts)
-    end)
-  end, "Underlines some content (experimental, undocumented)")
 end
 
 package.documentation = [[
