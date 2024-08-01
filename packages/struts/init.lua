@@ -3,6 +3,8 @@
 -- 2021-2023 Didier Willis
 -- License: MIT
 --
+require("silex.types") -- Compatibility shims
+
 local base = require("packages.base")
 
 local package = pl.class(base)
@@ -24,14 +26,14 @@ function package.declareSettings (_)
   SILE.settings:declare({
     parameter = "strut.ruledepth",
     type = "measurement",
-    default = SILE.measurement("0.3bs"),
+    default = SILE.types.measurement("0.3bs"),
     help = "Strut rule depth"
   })
 
   SILE.settings:declare({
     parameter = "strut.ruleheight",
     type = "measurement",
-    default = SILE.measurement("1bs"),
+    default = SILE.types.measurement("1bs"),
     help = "Strut rule height"
   })
 end
@@ -68,17 +70,17 @@ function package:registerCommands ()
     local strut
     if method == "rule" then
       strut = {
-        height = SILE.length(SILE.settings:get("strut.ruleheight")):absolute(),
-        depth = SILE.length(SILE.settings:get("strut.ruledepth")):absolute(),
+        height = SILE.types.length(SILE.settings:get("strut.ruleheight")):absolute(),
+        depth = SILE.types.length(SILE.settings:get("strut.ruledepth")):absolute(),
       }
       if show then
         -- The content there could be anything, we just want to be sure we get a box
-        SILE.call("rebox", { phantom = true, height = strut.height, depth = strut.depth, width = SILE.length() }, {})
+        SILE.call("rebox", { phantom = true, height = strut.height, depth = strut.depth, width = SILE.types.length() }, {})
       end
     elseif method == "character" then
       strut = characterStrut()
       if show then
-        SILE.call("rebox", { phantom = true, width = SILE.length() }, { SILE.settings:get("strut.character") })
+        SILE.call("rebox", { phantom = true, width = SILE.types.length() }, { SILE.settings:get("strut.character") })
       end
     else
       SU.error("Unknown strut method '" .. method .. "'")
