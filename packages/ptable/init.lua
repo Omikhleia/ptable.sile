@@ -4,6 +4,8 @@
 -- 2021-2023 Didier Willis
 -- License: MIT
 --
+require("silex.types") -- Compatibility shims
+
 local base = require("packages.base")
 
 local makeParbox -- assigned at package initialization
@@ -75,12 +77,12 @@ end
 -- on top of that... In a heavy-handed way (this function
 -- might even be called where uneeded, strictly speaking).
 local function vglueNoStretch (vg)
-  return SILE.nodefactory.vglue(SILE.length(vg.height.length))
+  return SILE.types.node.vglue(SILE.types.length(vg.height.length))
 end
 local function temporarilyClearFragileSettings (callback)
   SILE.settings:pushState()
   -- Kill that small lineskip thing that may move rows a bit.
-  SILE.settings:set("document.lineskip", SILE.length())
+  SILE.settings:set("document.lineskip", SILE.types.length())
   -- Kill stretchability at baseline and paragraph level.
   SILE.settings:set("document.baselineskip", vglueNoStretch(SILE.settings:get("document.baselineskip")))
   SILE.settings:set("document.parskip", vglueNoStretch(SILE.settings:get("document.parskip")))
@@ -195,7 +197,7 @@ local cellTableNode = pl.class({
       temporarilyClearFragileSettings(function()
         for i = 1, #self.rows do
           -- Set up queue but avoid a newPar? Apparently not needed here.
-          -- SILE.typesetter.state.nodes[#SILE.typesetter.state.nodes+1] = SILE.nodefactory.zerohbox()
+          -- SILE.typesetter.state.nodes[#SILE.typesetter.state.nodes+1] = SILE.types.node.zerohbox()
           self.rows[i]:shipout()
         end
       end)
@@ -212,9 +214,9 @@ local rowNode = pl.class({
     self.color = color
   end,
   height = function (self)
-    local h = SILE.length()
+    local h = SILE.types.length()
     for i = 1, #self.cells do
-      h = SU.max(self.cells[i]:height(), SILE.length(h))
+      h = SU.max(self.cells[i]:height(), SILE.types.length(h))
     end
     return h
   end,
@@ -229,7 +231,7 @@ local rowNode = pl.class({
     -- Important hack or a parindent occurs sometimes: Set up queue but avoid a newPar.
     -- We had do to the same weird magic in the parbox package too at one step, see the
     -- comment there.
-    SILE.typesetter.state.nodes[#SILE.typesetter.state.nodes+1] = SILE.nodefactory.zerohbox()
+    SILE.typesetter.state.nodes[#SILE.typesetter.state.nodes+1] = SILE.types.node.zerohbox()
     local hbox, hlist = SILE.typesetter:makeHbox(function ()
       for i = 1, #self.cells do
         self.cells[i]:shipout()
@@ -247,7 +249,7 @@ local processTable = {}
 
 processTable["cell"] = function (content, args, tablespecs)
     local span = SU.cast("integer", content.options.span or 1)
-    local color = content.options.background and SILE.color(content.options.background)
+    local color = content.options.background and SILE.types.color(content.options.background)
     local pad = parsePadding(content.options.padding or tablespecs.cellpadding)
     local width = computeCellWidth(args.col, span, tablespecs.cols)
 
@@ -284,9 +286,9 @@ processTable["celltable"] = function (content, args, tablespecs)
   end
 
 processTable["row"] = function (content, args, tablespecs)
-    local color = content.options.background and SILE.color(content.options.background)
+    local color = content.options.background and SILE.types.color(content.options.background)
 
-    SILE.settings:set("document.lineskip", SILE.length())
+    SILE.settings:set("document.lineskip", SILE.types.length())
     local iCell = args.col and args.col or 1
     local cells = {}
     for i = 1, #content do
@@ -380,7 +382,7 @@ function package:registerCommands ()
 
     local headerVbox
     temporarilyClearFragileSettings(function()
-      SILE.settings:set("document.parindent", SILE.length())
+      SILE.settings:set("document.parindent", SILE.types.length())
       local iRow = 1
       for i = 1, #content do
         if type(content[i]) == "table" then

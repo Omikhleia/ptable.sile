@@ -5,6 +5,8 @@
 --
 -- KNOWN ISSUE: RTL and BTT writing directions are not officialy supported yet (untested)
 --
+require("silex.types") -- Compatibility shims
+
 local base = require("packages.base")
 
 local package = pl.class(base)
@@ -85,28 +87,28 @@ function package.declareSettings (_)
   SILE.settings:declare({
     parameter = "framebox.padding",
     type = "measurement",
-    default = SILE.measurement("2pt"),
+    default = SILE.types.measurement("2pt"),
     help = "Padding applied to a framed box."
   })
 
   SILE.settings:declare({
     parameter = "framebox.borderwidth",
     type = "measurement",
-    default = SILE.measurement("0.4pt"),
+    default = SILE.types.measurement("0.4pt"),
     help = "Border width applied to a frame box."
   })
 
   SILE.settings:declare({
     parameter = "framebox.cornersize",
     type = "measurement",
-    default = SILE.measurement("5pt"),
+    default = SILE.types.measurement("5pt"),
     help = "Corner size (arc radius) for rounded boxes."
   })
 
   SILE.settings:declare({
     parameter = "framebox.shadowsize",
     type = "measurement",
-    default = SILE.measurement("3pt"),
+    default = SILE.types.measurement("3pt"),
     help = "Shadow width applied to a framed box when dropped shadow is enabled."
   })
 end
@@ -119,12 +121,12 @@ function package:registerCommands ()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
     local bordercolor
     if borderwidth ~= 0 then
-      bordercolor = options.bordercolor and SILE.color(options.bordercolor)
+      bordercolor = options.bordercolor and SILE.types.color(options.bordercolor)
     end
-    local fillcolor = options.fillcolor and SILE.color(options.fillcolor) or 'none'
+    local fillcolor = options.fillcolor and SILE.types.color(options.fillcolor) or 'none'
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
-    local shadowcolor = shadow and options.shadowcolor and SILE.color(options.shadowcolor)
+    local shadowcolor = shadow and options.shadowcolor and SILE.types.color(options.shadowcolor)
 
     local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
@@ -150,12 +152,12 @@ function package:registerCommands ()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
     local bordercolor
     if borderwidth ~= 0 then
-      bordercolor = options.bordercolor and SILE.color(options.bordercolor)
+      bordercolor = options.bordercolor and SILE.types.color(options.bordercolor)
     end
-    local fillcolor = options.fillcolor and SILE.color(options.fillcolor) or 'none'
+    local fillcolor = options.fillcolor and SILE.types.color(options.fillcolor) or 'none'
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
-    local shadowcolor = shadow and options.shadowcolor and SILE.color(options.shadowcolor)
+    local shadowcolor = shadow and options.shadowcolor and SILE.types.color(options.shadowcolor)
 
     local cornersize = SU.cast("measurement", options.cornersize or SILE.settings:get("framebox.cornersize")):tonumber()
 
@@ -192,8 +194,8 @@ function package:registerCommands ()
       -- (for hachures etc.)
       borderwidth = SILE.settings:get("framebox.borderwidth"):tonumber()
     end
-    local bordercolor = options.bordercolor and SILE.color(options.bordercolor)
-    local fillcolor = options.fillcolor and SILE.color(options.fillcolor)
+    local bordercolor = options.bordercolor and SILE.types.color(options.bordercolor)
+    local fillcolor = options.fillcolor and SILE.types.color(options.fillcolor)
     local enlarge = SU.boolean(options.enlarge, false)
 
     local hbox, hlist = SILE.typesetter:makeHbox(content)
@@ -227,11 +229,11 @@ function package:registerCommands ()
   end, "Frames content in a rough (sketchy) box.")
 
   self:registerCommand("bracebox", function(options, content)
-    local padding = SU.cast("measurement", options.padding or SILE.measurement("0.25em")):tonumber()
-    local strokewidth = SU.cast("measurement", options.strokewidth or SILE.measurement("0.033em")):tonumber()
-    local bracecolor = options.bracecolor and SILE.color(options.bracecolor)
-    local bracewidth = SU.cast("measurement", options.bracewidth or SILE.measurement("0.25em")):tonumber()
-    local bracethickness = SU.cast("measurement", options.bracethickness or SILE.measurement("0.05em")):tonumber()
+    local padding = SU.cast("measurement", options.padding or SILE.types.measurement("0.25em")):tonumber()
+    local strokewidth = SU.cast("measurement", options.strokewidth or SILE.types.measurement("0.033em")):tonumber()
+    local bracecolor = options.bracecolor and SILE.types.color(options.bracecolor)
+    local bracewidth = SU.cast("measurement", options.bracewidth or SILE.types.measurement("0.25em")):tonumber()
+    local bracethickness = SU.cast("measurement", options.bracethickness or SILE.types.measurement("0.05em")):tonumber()
     local curvyness = SU.cast("number", options.curvyness or 0.6)
     local left, right
     if options.side == "left" or not options.side then left = true

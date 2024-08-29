@@ -7,6 +7,8 @@
 --
 -- Known limitations: LTR-TTB writing direction is assumed.
 --
+require("silex.types") -- Compatibility shims
+
 local base = require("packages.base")
 
 local package = pl.class(base)
@@ -25,9 +27,9 @@ local function parboxTempFrame (options)
     id = id
   })
   nb_ = nb_+1
-  newFrame:constrain("top", SILE.length())
-  newFrame:constrain("bottom", SILE.length())
-  newFrame:constrain("left", SILE.length())
+  newFrame:constrain("top", SILE.types.length())
+  newFrame:constrain("bottom", SILE.types.length())
+  newFrame:constrain("left", SILE.types.length())
   newFrame:constrain("right", options.width)
   return newFrame
 end
@@ -105,7 +107,7 @@ local function getBaselineExtents (vboxlist)
   -- depth of the last line, so we can use these to vertically align the parbox
   -- with the surrounding content.
   -- The way we do it likely assumes top-to-bottom writing...
-  local baseHeight, baseDepth = SILE.length(), SILE.length()
+  local baseHeight, baseDepth = SILE.types.length(), SILE.types.length()
   for i = 1, #vboxlist do
     if vboxlist[i].is_vbox and vboxlist[i].height then
       baseHeight = vboxlist[i].height
@@ -174,10 +176,10 @@ function package.makeParbox(_, options, content)
   local border = options.border and parseBorderOrPadding(options.border, "border") or { 0, 0, 0, 0 }
   local valign = options.valign or "top"
   local padding = options.padding and parseBorderOrPadding(options.padding, "padding") or { 0, 0, 0, 0 }
-  local bordercolor =  options.bordercolor and SILE.color(options.bordercolor)
+  local bordercolor =  options.bordercolor and SILE.types.color(options.bordercolor)
   local minimize = SU.boolean(options.minimize, false)
 
-  width = SILE.length(SU.cast("measurement", width)):absolute()
+  width = SILE.types.length(SU.cast("measurement", width)):absolute()
 
   local vboxes, hlist = parboxFraming({ width = width }, content)
 
@@ -187,13 +189,13 @@ function package.makeParbox(_, options, content)
   elseif strut == "character" then
     strutDimen = SILE.call("strut", { method = "character" })
   else
-    strutDimen = { height = SILE.length(0), depth = SILE.length(0) }
+    strutDimen = { height = SILE.types.length(0), depth = SILE.types.length(0) }
   end
 
   local baseHeight, baseDepth = getBaselineExtents(vboxes)
 
-  local wmax = SILE.length()
-  local totalHeight = SILE.length()
+  local wmax = SILE.types.length()
+  local totalHeight = SILE.types.length()
   local vboxWidths = {}
   for i = 1, #vboxes do
     -- Try to cancel vertical stretching/shrinking
@@ -202,13 +204,13 @@ function package.makeParbox(_, options, content)
       -- by the page builder. We cannot tweak directly their height or depth as we
       -- sometimes do with other boxes, as it would have a side effect. So we have
       -- to re-create a new vglue with the appropriate fixed dimension.
-      vboxes[i] = SILE.nodefactory.vglue(SILE.length(vboxes[i].height.length))
+      vboxes[i] = SILE.types.node.vglue(SILE.types.length(vboxes[i].height.length))
     end
     totalHeight = totalHeight + vboxes[i].height:absolute() + vboxes[i].depth:absolute()
 
     if minimize then
       -- We go through all lines to retrieve their natural line.
-      local w = SILE.length()
+      local w = SILE.types.length()
       if vboxes[i].nodes then
         w = naturalWidth(width, vboxes[i].nodes)
         if w > wmax then wmax = w end
@@ -220,7 +222,7 @@ function package.makeParbox(_, options, content)
   if minimize then
     -- The max line width can actually be bigger than our target width,
     -- (i.e. notwithstanding its shrinkeability).
-    local wmaxlen = SILE.length(wmax.length) -- Lua5.1 doesn't like comparing appels and oranges
+    local wmaxlen = SILE.types.length(wmax.length) -- Lua5.1 doesn't like comparing appels and oranges
     width = SU.min(wmaxlen, width)
     -- We recompute all line ratios based on the new target width.
     for i = 1, #vboxes do
@@ -233,30 +235,30 @@ function package.makeParbox(_, options, content)
 
   local adjustDepth = SU.max(baseDepth, strutDimen.depth) - baseDepth
   local adjustHeight = SU.max(baseHeight, strutDimen.height) - baseHeight
-  local z0 = SILE.length(0)
+  local z0 = SILE.types.length(0)
   local depth, height
   if valign == "bottom" then
-    depth = z0 + SILE.length(padding[2]) + SU.max(baseDepth, strutDimen.depth)
-    height = totalHeight + SILE.length(padding[1]) - baseDepth + adjustHeight
+    depth = z0 + SILE.types.length(padding[2]) + SU.max(baseDepth, strutDimen.depth)
+    height = totalHeight + SILE.types.length(padding[1]) - baseDepth + adjustHeight
   elseif valign == "middle" then
-    local padwidth = SILE.length(padding[2] + padding[1])
+    local padwidth = SILE.types.length(padding[2] + padding[1])
     local half = (totalHeight + adjustHeight + adjustDepth + padwidth) / 2
     depth = half
     height = half
   else -- valign == top
-    depth = totalHeight + SILE.length(padding[2]) - baseHeight + adjustDepth
-    height = z0 + SILE.length(padding[1]) + SU.max(baseHeight, strutDimen.height)
+    depth = totalHeight + SILE.types.length(padding[2]) - baseHeight + adjustDepth
+    height = z0 + SILE.types.length(padding[1]) + SU.max(baseHeight, strutDimen.height)
   end
 
-  local parbox = SILE.nodefactory.hbox({
-    width = width + SILE.length(padding[3] + padding[4]),
+  local parbox = SILE.types.node.hbox({
+    width = width + SILE.types.length(padding[3] + padding[4]),
     depth = depth,
     height = height,
     inner = vboxes,
     valign = valign,
     padding = padding,
     yAdjust = adjustHeight, -- TTB is assumed
-    offset = SILE.measurement(), -- INTERNAL: See comment below.
+    offset = SILE.types.measurement(), -- INTERNAL: See comment below.
     border = border,
     bordercolor = bordercolor,
     outputYourself= function (node, typesetter, _)
