@@ -1,7 +1,7 @@
 --
 -- Some classes to build PDF graphics drawings (path strings)
 -- License: MIT
--- 2022, 2023 Didier Willis
+-- 2022, 2023, 2025 Didier Willis
 --
 -- Public API consists in:
 -- - a PathRenderer class that provides basic drawing methods, using a default
@@ -16,14 +16,14 @@ local PRNG = require("prng-prigarin")
 
 -- HELPERS
 
---- Round number
+--- Round number to string for output.
 --
 -- @tparam  number    number    number value
--- @return                      rounded value for output
+-- @treturn string              rounded value as string
 local function _r (number)
   -- Lua 5.3+ formats floats as 1.0 and integers as 1
   -- Also some PDF readers do not like double precision.
-  return math.floor(number) == number and math.floor(number) or tonumber(string.format("%.5f", number))
+  return math.floor(number) == number and tostring(math.floor(number)) or string.format("%.5f", number)
 end
 
 --- Builds a PDF graphics color (stroke or fill) from a SILE parsed color.
@@ -488,4 +488,3 @@ return {
   PathRenderer = PathRenderer,
   RoughPainter = RoughPainter,
 }
-
