@@ -1,8 +1,9 @@
 rockspec_format = "3.0"
 package = "ptable.sile"
-version = "dev-1"
+version = "3.2.0-1"
 source = {
   url = "git+https://github.com/Omikhleia/ptable.sile.git",
+  tag = "v3.2.0",
 }
 description = {
   summary = "Paragraph boxes, framed boxes and table packages for the SILE typesetting system.",
@@ -15,8 +16,8 @@ description = {
 }
 dependencies = {
   "lua >= 5.1",
-  "silex.sile",
-  "rough",
+  "silex.sile >= 0.6.0, < 1.0",
+  "rough >= 1.0.0",
 }
 build = {
   type = "builtin",
