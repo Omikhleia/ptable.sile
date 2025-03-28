@@ -4,13 +4,51 @@
 -- 2022, 2023, 2025 Didier Willis
 --
 local PDFHelpers = require("grail.pdf.helpers")
-local _r, makeColorHelper, makePathHelper = PDFHelpers._r, PDFHelpers.makeColorHelper, PDFHelpers.makePathHelper
+local _r, makeColorHelper = PDFHelpers._r, PDFHelpers.makeColorHelper
 
 local DefaultPainter = pl.class()
 
 DefaultPainter.defaultOptions = {
   strokeWidth = 1,
 }
+
+--- Builds a graphics path from a starting position (x, y)
+-- and a set of relative segments which can be either lines (2 coords)
+-- or bezier curves (6 segments).
+--
+-- @tparam  number    x         Starting position X coordinate
+-- @tparam  number    y         Starting position Y coordinate
+-- @tparam  number    segments  Relative segments
+-- @treturn table               Graphics path
+local function makePathHelper (x, y, segments)
+  local paths = {
+    {
+      op = "move",
+      data = { _r(x), _r(y) }
+    }
+  }
+  for i = 1, #segments do
+    local s = segments[i]
+    if #s == 2 then
+      -- line
+      x = s[1] + x
+      y = s[2] + y
+      paths[#paths + 1] = {
+        op = "lineTo",
+        data = { _r(x), _r(y) },
+      }
+    else
+      -- bezier curve
+      paths[#paths + 1] = {
+        op = "bcurveTo",
+        data = { _r(s[1] + x), _r(s[2] + y), _r(s[3] + x), _r(s[4] + y), _r(s[5] + x), _r(s[6] + y) }
+      }
+      x = s[5] + x
+      y = s[6] + y
+    end
+  end
+  return paths
+end
 
 function DefaultPainter:_init (options)
   if options then
@@ -26,18 +64,59 @@ end
 function DefaultPainter:line (x1, y1, x2, y2, options)
   local o = self:_o(options)
   return {
-    path = table.concat({ _r(x1), _r(y1), "m", _r(x2 - x1), _r(y2 - y1), "l" }, " "),
+    shape = "line",
     options = o,
+    sets = {
+      {
+        type = "path",
+        ops = {
+          {
+            op = "move",
+            data = { _r(x1), _r(y1) }
+          },
+          {
+            op = "lineTo",
+            data = { _r(x2 -x1), _r(y2 - y1) }
+          }
+        }
+      }
+
+    }
   }
+end
+
+local function fillSolid (outline, o)
+  local sets = {}
+  if o.fill ~= "none" then
+    sets[#sets + 1] = {
+      type = 'fillPath',
+      ops = outline
+    }
+  end
+  if o.stroke ~= 'none' and o.strokeWidth > 0 then
+    sets[#sets + 1] = {
+      type = 'path',
+      ops = outline
+    }
+  end
+  return sets
 end
 
 --- Path for a rectangle with upper left (x, y), with given width and height.
 function DefaultPainter:rectangle (x, y , w , h, options)
   local o = self:_o(options)
-  return {
-    path = table.concat({ _r(x), _r(y), _r(w), _r(h), "re" }, " "),
-    options = o,
+  local outline = {
+    {
+      op = "rect",
+      data = { _r(x), _r(y), _r(w), _r(h) }
+    }
   }
+  local paths = {
+    shape = "rectangle",
+    options = o,
+    sets = fillSolid(outline, o)
+  }
+  return paths
 end
 
 --- Path for a rounded rectangle with upper left (x, y), with given width,
@@ -59,10 +138,13 @@ function DefaultPainter:roundedRectangle (x, y , w , h, rx, ry, options)
     {0, (-h + 2 * ry)}, -- vertical left line
     {0, -(ry * arc), (rx * arc), -ry, rx, -ry} -- top left curve
   }
-  return {
-    path = makePathHelper(x0, y, segments),
+  local outline = makePathHelper(x0, y, segments)
+  local paths = {
+    shape = "roundedRectangle",
     options = o,
+    sets = fillSolid(outline, o)
   }
+  return paths
 end
 
 -- Clipping path for an L-shaped area on a rectangle.
@@ -81,7 +163,14 @@ function DefaultPainter.rectangleClip (_, x, y , w , h, s)
     }
   end
   return {
-    path = makePathHelper(x0, y, segments),
+    shape = "rectangleClip",
+    options = {},
+    sets = {
+      {
+        type = 'path',
+        ops = makePathHelper(x0, y, segments),
+      }
+    }
   }
 end
 
@@ -120,7 +209,14 @@ function DefaultPainter.roundedRectangleClip (_, x, y , w , h, rx, ry, s)
     }
   end
   return {
-    path = makePathHelper(x0, y, segments),
+    shape = "roundedRectangleClip",
+    options = {},
+    sets = {
+      {
+        type = 'path',
+        ops = makePathHelper(x0, y, segments)
+      }
+    }
   }
 end
 
@@ -133,6 +229,9 @@ end
 --
 function DefaultPainter:curlyBrace (x1, y1 , x2 , y2, width, thickness, curvyness, options)
   local o = self:_o(options)
+  if o.rounded == nil then
+    o.rounded = true -- default to round line caps and line joins
+  end
 
   -- Calculate unit vector
   local dx = x1 - x2
@@ -166,32 +265,63 @@ function DefaultPainter:curlyBrace (x1, y1 , x2 , y2, width, thickness, curvynes
   local thickoffset = width > 0 and thickness or -thickness
   local qx2b, qy2b = qx2 - thickoffset * dy, qy2 - thickoffset * dx
   local qx4b, qy4b = qx4 - thickoffset * dy, qy4 - thickoffset * dx
+  local outline = {
+    -- TOP SEGMENT
+    -- From (x1, y1)
+    {
+      op = "move",
+      data = { _r(x1), _r(y1) }
+    },
+    -- Goto (qx2, qy2) vith control point (qx1, qy1) on current position (x1, y1)
+    {
+      op = "vcurveTo",
+      data = { _r(qx1), _r(qy1), _r(qx2), _r(qy2) }
+    },
+    -- Then go to (tx, ty) with the reflexion of the previous control point
+    -- ((2 * point - control) is the reflexion of control relative to point)
+    {
+      op = "vcurveTo",
+      data = { _r(2 * qx2 - qx1), _r(2 * qy2 - qy1), _r(tx), _r(ty) }
+    },
+    -- TOP SEGMENT THICKNESS
+    -- Go back to (qx2b, qy2b) with control control point on it.
+    {
+      op = "ycurveTo",
+      data = { _r(2 * qx2b - qx1), _r(2 * qy2b - qy1), _r(qx2b), _r(qy2b) }
+    },
+    -- And back to the original point (x1, y1), with control point on it.
+    {
+      op = "ycurveTo",
+      data = { _r(qx1), _r(qy1), _r(x1), _r(y1) }
+    },
+    -- BOTTOM SEGMENT
+    -- Same thing but from (x2, y2) to (tx, ty) and backwards with thickness.
+    {
+      op = "move",
+      data = { _r(x2), _r(y2) }
+    },
+    {
+      op = "vcurveTo",
+      data = { _r(qx3), _r(qy3), _r(qx4), _r(qy4) }
+    },
+    {
+      op = "vcurveTo",
+      data = { _r(2 * qx4 - qx3), _r(2 * qy4 - qy3), _r(tx), _r(ty) }
+    },
+    {
+      op = "ycurveTo",
+      data = { _r(2 * qx4b - qx3), _r(2 * qy4b - qy3), _r(qx4b), _r(qy4b) }
+    },
+    {
+      op = "ycurveTo",
+      data = { _r(qx3), _r(qy3), _r(x2), _r(y2) }
+    },
+  }
+
   return {
-    path = table.concat({
-      -- TOP SEGMENT
-      -- From (x1, y1)
-      _r(x1), _r(y1), "m",
-      -- Goto (qx2, qy2) vith control point (qx1, qy1) on current position (x1, y1)
-      _r(qx1), _r(qy1), _r(qx2), _r(qy2), "v",
-      -- Then go to (tx, ty) with the reflexion of the previous control point
-      -- ((2 * point - control) is the reflexion of control relative to point)
-      _r(2 * qx2 - qx1), _r(2 * qy2 - qy1), _r(tx), _r(ty), "v",
-      -- TOP SEGMENT THICKNESS
-      -- Go back to (qx2b, qy2b) with control control point on it.
-      _r(2 * qx2b - qx1), _r(2 * qy2b - qy1), _r(qx2b), _r(qy2b), "y",
-      -- And back to the original point (x1, y1), with control point on it.
-      _r(qx1), _r(qy1), _r(x1), _r(y1), "y",
-      -- BOTTOM SEGMENT
-      -- Same thing but from (x2, y2) to (tx, ty) and backwards with thickness.
-      _r(x2), _r(y2), "m",
-      _r(qx3), _r(qy3), _r(qx4), _r(qy4), "v",
-      _r(2 * qx4 - qx3), _r(2 * qy4 - qy3), _r(tx), _r(ty), "v",
-      _r(2 * qx4b - qx3), _r(2 * qy4b - qy3), _r(qx4b), _r(qy4b), "y",
-      _r(qx3), _r(qy3), _r(x2), _r(y2), "y",
-      -- Round line caps and line joins
-      1, "J", 1, "j",
-    }, " "),
-    options = o
+    shape = "curlyBrace",
+    options = o,
+    sets = fillSolid(outline, o)
   }
 end
 
@@ -207,7 +337,84 @@ function DefaultPainter.arc ()
   SU.error("Arc not implemented in DefaultPainter")
 end
 
-function DefaultPainter.draw (_, drawable, clippable)
+function DefaultPainter:draw (drawable, clippable)
+  local sets = drawable.sets or {}
+  local o = drawable.options
+  local precision = drawable.options.fixedDecimalPlaceDigits
+  local g = {}
+  for _, drawing in ipairs(sets) do
+    local path = self:opsToPath(drawing, precision)
+    if o.rounded == true then
+      path = path .. " 1 J 1 j"
+    end
+    if drawing.type == "path" then
+      path = table.concat({
+          path,
+          makeColorHelper(o.stroke, true),
+          _r(o.strokeWidth), "w",
+          "S"
+      }, " ")
+    elseif drawing.type == "fillPath" then
+      path = table.concat({
+        path,
+        makeColorHelper(o.fill, false),
+        _r(o.strokeWidth), "w",
+        "f"
+      }, " ")
+    elseif drawing.type == "fillSketch" then
+      path = table.concat({
+        path,
+        makeColorHelper(o.fill, true),
+        _r(o.strokeWidth), "w",
+        "S"
+      }, " ")
+    else
+      SU.error("Unknown drawing type: " .. drawing.type)
+    end
+    if path then
+      g[#g + 1] = path
+    end
+  end
+  local path = table.concat(g, " ")
+  if clippable then
+    -- Enclose drawing path in a group with the clipping path
+    clippable.options = drawable.options
+    local clip = self:opsToPath(clippable.sets[1], precision)
+     path = table.concat({
+       "q",
+       clip, "W n",
+       path,
+       "Q"
+     }, " ")
+  end
+  return path
+end
+
+function DefaultPainter.opsToPath (_, drawing, _)  -- self, drawing, precision
+  local path = {}
+  for _, item in ipairs(drawing.ops) do
+    local data = item.data
+    -- NOTE: we currently ignore the decimal precision option
+    if item.op == "move" then
+      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " m"
+    elseif item.op == 'bcurveTo' then
+      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " " .. _r(data[3]) .. " " .. _r(data[4]) .. " " .. _r(data[5]) .. " " .. _r(data[6]) .. " c"
+    elseif item.op == "vcurveTo" then
+      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " " .. _r(data[3]) .. " " .. _r(data[4]) .. " v"
+    elseif item.op == "ycurveTo" then
+      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " " .. _r(data[3]) .. " " .. _r(data[4]) .. " y"
+    elseif item.op == "rect" then
+      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " " .. _r(data[3]) .. " " .. _r(data[4]) .. " re"
+    elseif item.op == "lineTo" then
+      path[#path + 1] = _r(data[1]) .. " " ..  _r(data[2]) .. " l"
+    end
+  end
+  return table.concat(path, " ")
+end
+
+-- FIXME: The new logic splits filling and stroking, which is not the case in the original code.
+-- Kept for reference.
+function DefaultPainter._old_draw (_, drawable, clippable)
   local o = drawable.options
   local path
 

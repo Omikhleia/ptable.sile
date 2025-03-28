@@ -40,38 +40,7 @@ local function makeColorHelper (color, stroke)
   return colspec .. " " .. colop
 end
 
---- Builds a PDF graphics path from a starting position (x, y)
--- and a set of relative segments which can be either lines (2 coords)
--- or bezier curves (6 segments).
---
--- @tparam  number    x         Starting position X coordinate
--- @tparam  number    y         Starting position Y coordinate
--- @tparam  number    segments  Relative segments
--- @treturn string              PDF graphics path
-local function makePathHelper (x, y, segments)
-  local paths = { { _r(x), _r(y), "m" } }
-  for i = 1, #segments do
-    local s = segments[i]
-    if #s == 2 then
-      -- line
-      x = s[1] + x
-      y = s[2] + y
-      paths[#paths + 1] = { _r(x), _r(y), "l" }
-    else
-      -- bezier curve
-      paths[#paths + 1] = { _r(s[1] + x), _r(s[2] + y), _r(s[3] + x), _r(s[4] + y), _r(s[5] + x), _r(s[6] + y), "c" }
-      x = s[5] + x
-      y = s[6] + y
-    end
-  end
-  for i, v in ipairs(paths) do
-    paths[i] = table.concat(v, " ")
-  end
-  return table.concat(paths, " ")
-end
-
 return {
   _r = _r,
   makeColorHelper = makeColorHelper,
-  makePathHelper = makePathHelper,
 }

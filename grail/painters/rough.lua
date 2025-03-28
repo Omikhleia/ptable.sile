@@ -10,7 +10,7 @@ local RoughPainter = pl.class()
 local prng = PRNG()
 
 local PDFHelpers = require("grail.pdf.helpers")
-local _r, makeColorHelper, makePathHelper = PDFHelpers._r, PDFHelpers.makeColorHelper, PDFHelpers.makePathHelper
+local _r, makeColorHelper = PDFHelpers._r, PDFHelpers.makeColorHelper
 
 function RoughPainter:_init (options)
   local o = options or {}
