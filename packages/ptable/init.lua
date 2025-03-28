@@ -321,8 +321,8 @@ function package:_init ()
   end
   self.class:registerPostinit(function()
     -- TYPESETTER TWEAKS
-    -- N.B. We do this at class post-init since the base class's post-init now
-    -- now creates the typesetter at this point (SILE > v0.14).
+    -- N.B. We do this at class post-init since the base class's post-init
+    -- creates the typesetter at this point (SILE > v0.14).
     --
     -- We modify the typesetter globally to check whether the content on a new
     -- frame is a table row, which may need a repeating header row to be inserted.
