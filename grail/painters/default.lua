@@ -50,6 +50,52 @@ local function makePathHelper (x, y, segments)
   return paths
 end
 
+--- Given an outline and options, returns a set of operations to either fill or stroke the outline.
+-- Operatior types are compatible with rough-lua:
+--   - fillPath: fill only
+--   - path: stroke only
+-- We support another type:
+--   - shape: fill and stroke in one operation
+-- Here, we don't need to support one type from rough-lua:
+--   - fillSketch: stroke only (for pattern sketches)
+-- Also, our sets just need to contain one element.
+-- (rough-lua needs multiple elements for stroking and filling, esp. with patterns)
+--
+-- @tparam  table    outline  Outline path
+-- @tparam  table    o        Options
+-- @treturn table             Set of operations
+local function strokeAndOrFill (outline, o)
+  if o.stroke ~= "none" and o.strokeWidth > 0 then
+    if o.fill ~= "none" then
+      -- Fill and stroke
+      return {
+        {
+          type = "shape",
+          ops = outline
+        }
+      }
+    end
+    -- Stroke only
+    return {
+      {
+        type = "path",
+        ops = outline
+      }
+    }
+  end
+  if o.fill ~= "none" then
+    -- Fill only
+    return {
+      {
+        type = "fillPath",
+        ops = outline
+      }
+    }
+  end
+  -- Neither fill nor stroke, i.e. nothing to do
+  return {}
+end
+
 function DefaultPainter:_init (options)
   if options then
     self.defaultOptions = self:_o(options)
@@ -85,23 +131,6 @@ function DefaultPainter:line (x1, y1, x2, y2, options)
   }
 end
 
-local function fillSolid (outline, o)
-  local sets = {}
-  if o.fill ~= "none" then
-    sets[#sets + 1] = {
-      type = 'fillPath',
-      ops = outline
-    }
-  end
-  if o.stroke ~= 'none' and o.strokeWidth > 0 then
-    sets[#sets + 1] = {
-      type = 'path',
-      ops = outline
-    }
-  end
-  return sets
-end
-
 --- Path for a rectangle with upper left (x, y), with given width and height.
 function DefaultPainter:rectangle (x, y , w , h, options)
   local o = self:_o(options)
@@ -114,7 +143,7 @@ function DefaultPainter:rectangle (x, y , w , h, options)
   local paths = {
     shape = "rectangle",
     options = o,
-    sets = fillSolid(outline, o)
+    sets = strokeAndOrFill(outline, o)
   }
   return paths
 end
@@ -123,7 +152,6 @@ end
 -- height and border radius.
 function DefaultPainter:roundedRectangle (x, y , w , h, rx, ry, options)
   local o = self:_o(options)
-
   local arc = 4 / 3 * (1.4142135623730951 - 1)
   -- starting point
   local x0 = x + rx
@@ -142,7 +170,7 @@ function DefaultPainter:roundedRectangle (x, y , w , h, rx, ry, options)
   local paths = {
     shape = "roundedRectangle",
     options = o,
-    sets = fillSolid(outline, o)
+    sets = strokeAndOrFill(outline, o)
   }
   return paths
 end
@@ -232,7 +260,6 @@ function DefaultPainter:curlyBrace (x1, y1 , x2 , y2, width, thickness, curvynes
   if o.rounded == nil then
     o.rounded = true -- default to round line caps and line joins
   end
-
   -- Calculate unit vector
   local dx = x1 - x2
   local dy = y1 - y2
@@ -317,11 +344,10 @@ function DefaultPainter:curlyBrace (x1, y1 , x2 , y2, width, thickness, curvynes
       data = { _r(qx3), _r(qy3), _r(x2), _r(y2) }
     },
   }
-
   return {
     shape = "curlyBrace",
     options = o,
-    sets = fillSolid(outline, o)
+    sets = strokeAndOrFill(outline, o)
   }
 end
 
@@ -347,6 +373,7 @@ function DefaultPainter:draw (drawable, clippable)
     if o.rounded == true then
       path = path .. " 1 J 1 j"
     end
+    -- path = stroke only
     if drawing.type == "path" then
       path = table.concat({
           path,
@@ -354,6 +381,7 @@ function DefaultPainter:draw (drawable, clippable)
           _r(o.strokeWidth), "w",
           "S"
       }, " ")
+    -- fillPath = fill only
     elseif drawing.type == "fillPath" then
       path = table.concat({
         path,
@@ -361,12 +389,22 @@ function DefaultPainter:draw (drawable, clippable)
         _r(o.strokeWidth), "w",
         "f"
       }, " ")
+    -- fillSketch = stroke only
     elseif drawing.type == "fillSketch" then
       path = table.concat({
         path,
         makeColorHelper(o.fill, true),
         _r(o.strokeWidth), "w",
         "S"
+      }, " ")
+    -- shape = fill and stroke in one operation
+    elseif drawing.type == "shape" then
+      path = table.concat({
+        path,
+        makeColorHelper(o.stroke, true),
+        makeColorHelper(o.fill, false),
+        _r(o.strokeWidth), "w",
+        "B"
       }, " ")
     else
       SU.error("Unknown drawing type: " .. drawing.type)
@@ -410,53 +448,6 @@ function DefaultPainter.opsToPath (_, drawing, _)  -- self, drawing, precision
     end
   end
   return table.concat(path, " ")
-end
-
--- FIXME: The new logic splits filling and stroking, which is not the case in the original code.
--- Kept for reference.
-function DefaultPainter._old_draw (_, drawable, clippable)
-  local o = drawable.options
-  local path
-
-  if o.strokeWidth == 0 or o.stroke == 'none' then
-    if o.fill ~= 'none' then
-      -- Fill only
-      path = table.concat({
-        drawable.path,
-        makeColorHelper(o.fill, false),
-        "f"
-      }, " ")
-    else
-      path = ""
-    end
-  elseif o.fill ~= 'none' then
-    -- Stroke and fill
-    path = table.concat({
-      drawable.path,
-      makeColorHelper(o.stroke, true),
-      makeColorHelper(o.fill, false),
-      _r(o.strokeWidth), "w",
-      "B"
-    }, " ")
-  else
-    -- Stroke only
-    path = table.concat({
-      drawable.path,
-      makeColorHelper(o.stroke, true),
-      _r(o.strokeWidth), "w",
-      "S"
-    }, " ")
-  end
-  if clippable then
-    -- Enclose drawing path in a group with the clipping path
-    path = table.concat({
-      "q",
-      clippable.path, "W n",
-      path,
-      "Q"
-    }, " ")
-  end
-  return path
 end
 
 return {
