@@ -1,7 +1,7 @@
 --
 -- Fancy framed boxes for SILE
 -- License: MIT
--- 2021-2023 Didier Willis
+-- 2021-2023, 2025 Didier Willis
 --
 -- KNOWN ISSUE: RTL and BTT writing directions are not officialy supported yet (untested)
 --
@@ -12,9 +12,8 @@ local base = require("packages.base")
 local package = pl.class(base)
 package._name = "framebox"
 
-local graphics = require("packages.framebox.graphics.renderer")
-local PathRenderer = graphics.PathRenderer
-local RoughPainter = graphics.RoughPainter
+local PathRenderer = require("grail.renderer").PathRenderer
+local RoughPainter = require("grail.painters.rough").RoughPainter
 
 -- LOW-LEVEL REBOXING HELPERS
 
