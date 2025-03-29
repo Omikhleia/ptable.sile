@@ -54,4 +54,8 @@ function RoughPainter.curlyBrace ()
   SU.error("Curly brace not implemented in RoughPainter")
 end
 
+function RoughPainter.pieSector ()
+  SU.error("Pie sector not implemented in RoughPainter")
+end
+
 return RoughPainter

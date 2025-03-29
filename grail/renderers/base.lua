@@ -58,6 +58,11 @@ function PathRenderer:curlyBrace (x1, y1 , x2 , y2, width, thickness, curvyness,
   return self:draw(drawable)
 end
 
+function PathRenderer:pieSector (x, y, radius, startAngle, arcAngle, ratio, options)
+  local drawable = self.painter:pieSector(x, y, radius, startAngle, arcAngle, ratio, options)
+  return self:draw(drawable)
+end
+
 function PathRenderer.draw (_, _, _) -- self, drawable, clippable
   SU.error("PathRenderer:draw() is abstract")
 end

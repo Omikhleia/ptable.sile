@@ -3,11 +3,47 @@
 -- License: MIT
 -- 2022, 2023, 2025 Didier Willis
 --
+local arcToBezierCurves = require("grail.shapes.arc")
+
 local DefaultPainter = pl.class()
 
 DefaultPainter.defaultOptions = {
   strokeWidth = 1,
 }
+
+-- Builds a graphics path from a starting position (x, y)
+-- and a set of absolute segments which can be either lines (2 coords)
+-- or bezier curves (6 segments).
+--
+-- @tparam  number    x         Starting position X coordinate
+-- @tparam  number    y         Starting position Y coordinate
+-- @tparam  number    segments  Absolute segments
+-- @treturn table               Graphics path
+local function absPathHelper (x, y, segments)
+  local paths = {
+    {
+      op = "move",
+      data = { x, y }
+    }
+  }
+  for i = 1, #segments do
+    local s = segments[i]
+    if #s == 2 then
+      -- line
+      paths[#paths + 1] = {
+        op = "lineTo",
+        data = { s[1], s[2] }
+      }
+    else
+      -- bezier curve
+      paths[#paths + 1] = {
+        op = "bcurveTo",
+        data = { s[1], s[2], s[3], s[4], s[5], s[6] }
+      }
+    end
+  end
+  return paths
+end
 
 --- Builds a graphics path from a starting position (x, y)
 -- and a set of relative segments which can be either lines (2 coords)
@@ -17,7 +53,7 @@ DefaultPainter.defaultOptions = {
 -- @tparam  number    y         Starting position Y coordinate
 -- @tparam  number    segments  Relative segments
 -- @treturn table               Graphics path
-local function makePathHelper (x, y, segments)
+local function relPathHelper (x, y, segments)
   local paths = {
     {
       op = "move",
@@ -163,7 +199,7 @@ function DefaultPainter:roundedRectangle (x, y , w , h, rx, ry, options)
     {0, (-h + 2 * ry)}, -- vertical left line
     {0, -(ry * arc), (rx * arc), -ry, rx, -ry} -- top left curve
   }
-  local outline = makePathHelper(x0, y, segments)
+  local outline = relPathHelper(x0, y, segments)
   local paths = {
     shape = "roundedRectangle",
     options = o,
@@ -193,7 +229,7 @@ function DefaultPainter.rectangleClip (_, x, y , w , h, s)
     sets = {
       {
         type = 'path',
-        ops = makePathHelper(x0, y, segments),
+        ops = relPathHelper(x0, y, segments),
       }
     }
   }
@@ -239,7 +275,7 @@ function DefaultPainter.roundedRectangleClip (_, x, y , w , h, rx, ry, s)
     sets = {
       {
         type = 'path',
-        ops = makePathHelper(x0, y, segments)
+        ops = relPathHelper(x0, y, segments)
       }
     }
   }
@@ -348,16 +384,48 @@ function DefaultPainter:curlyBrace (x1, y1 , x2 , y2, width, thickness, curvynes
   }
 end
 
-function DefaultPainter.ellipse ()
-  SU.error("Ellipse not implemented in DefaultPainter")
+function DefaultPainter:ellipse (x, y , w , h, options)
+  local o = self:_o(options)
+  local s1 = arcToBezierCurves(x, y, w / 2, h / 2, 0, 2 * math.pi)
+  local outline = absPathHelper(s1[1][1], s1[1][2], s1)
+  return  {
+    shape = "ellipse",
+    options = o,
+    sets = strokeAndOrFill(outline, o)
+  }
 end
 
-function DefaultPainter.circle ()
-  SU.error("Circle not implemented in DefaultPainter")
+function DefaultPainter:circle(x, y , diameter, options)
+  return self:ellipse(x, y, diameter, diameter, options)
 end
 
-function DefaultPainter.arc ()
-  SU.error("Arc not implemented in DefaultPainter")
+function DefaultPainter:arc (x, y , w , h, start, stop, closed, options)
+  local o = self:_o(options)
+  local s1 = arcToBezierCurves(x, y, w / 2, h / 2, start, stop, closed)
+  local outline = absPathHelper(s1[1][1], s1[1][2], s1)
+  return {
+    shape = "arc",
+    options = o,
+    sets = strokeAndOrFill(outline, o)
+  }
+end
+
+function DefaultPainter:pieSector (x, y, radius, startAngle, arcAngle, ratio, options)
+  local o = self:_o(options)
+  ratio = ratio or 0.6
+  -- outer arc
+  local s1 = arcToBezierCurves(x, y, radius, radius, startAngle, arcAngle)
+  -- inner arc
+  local s2 = arcToBezierCurves(x, y, ratio * radius, ratio * radius, startAngle + arcAngle, -arcAngle)
+  table.insert(s1, s2[1]) -- line to the inner arc
+  pl.tablex.insertvalues(s1, s2)
+  table.insert(s1, s2[#s2]) -- line to the outer arc
+  local outline = absPathHelper(s1[1][1], s1[1][2], s1)
+  return {
+    shape = "pieSector",
+    options = o,
+    sets = strokeAndOrFill(outline, o)
+  }
 end
 
 return DefaultPainter
