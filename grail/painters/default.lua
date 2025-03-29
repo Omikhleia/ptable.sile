@@ -3,9 +3,6 @@
 -- License: MIT
 -- 2022, 2023, 2025 Didier Willis
 --
-local PDFHelpers = require("grail.pdf.helpers")
-local _r = PDFHelpers._r
-
 local DefaultPainter = pl.class()
 
 DefaultPainter.defaultOptions = {
@@ -24,7 +21,7 @@ local function makePathHelper (x, y, segments)
   local paths = {
     {
       op = "move",
-      data = { _r(x), _r(y) }
+      data = { x, y }
     }
   }
   for i = 1, #segments do
@@ -35,13 +32,13 @@ local function makePathHelper (x, y, segments)
       y = s[2] + y
       paths[#paths + 1] = {
         op = "lineTo",
-        data = { _r(x), _r(y) },
+        data = { x, y },
       }
     else
       -- bezier curve
       paths[#paths + 1] = {
         op = "bcurveTo",
-        data = { _r(s[1] + x), _r(s[2] + y), _r(s[3] + x), _r(s[4] + y), _r(s[5] + x), _r(s[6] + y) }
+        data = { s[1] + x, s[2] + y, s[3] + x, s[4] + y, s[5] + x, s[6] + y }
       }
       x = s[5] + x
       y = s[6] + y
@@ -118,11 +115,11 @@ function DefaultPainter:line (x1, y1, x2, y2, options)
         ops = {
           {
             op = "move",
-            data = { _r(x1), _r(y1) }
+            data = { x1, y1 }
           },
           {
             op = "lineTo",
-            data = { _r(x2 -x1), _r(y2 - y1) }
+            data = { x2 -x1, y2 - y1 }
           }
         }
       }
@@ -137,7 +134,7 @@ function DefaultPainter:rectangle (x, y , w , h, options)
   local outline = {
     {
       op = "rect",
-      data = { _r(x), _r(y), _r(w), _r(h) }
+      data = { x, y, w, h }
     }
   }
   local paths = {
@@ -297,51 +294,51 @@ function DefaultPainter:curlyBrace (x1, y1 , x2 , y2, width, thickness, curvynes
     -- From (x1, y1)
     {
       op = "move",
-      data = { _r(x1), _r(y1) }
+      data = { x1, y1 }
     },
     -- Goto (qx2, qy2) vith control point (qx1, qy1) on current position (x1, y1)
     {
       op = "vcurveTo",
-      data = { _r(qx1), _r(qy1), _r(qx2), _r(qy2) }
+      data = { qx1, qy1, qx2, qy2 }
     },
     -- Then go to (tx, ty) with the reflexion of the previous control point
     -- ((2 * point - control) is the reflexion of control relative to point)
     {
       op = "vcurveTo",
-      data = { _r(2 * qx2 - qx1), _r(2 * qy2 - qy1), _r(tx), _r(ty) }
+      data = { 2 * qx2 - qx1, 2 * qy2 - qy1, tx, ty }
     },
     -- TOP SEGMENT THICKNESS
     -- Go back to (qx2b, qy2b) with control control point on it.
     {
       op = "ycurveTo",
-      data = { _r(2 * qx2b - qx1), _r(2 * qy2b - qy1), _r(qx2b), _r(qy2b) }
+      data = { 2 * qx2b - qx1, 2 * qy2b - qy1, qx2b, qy2b }
     },
     -- And back to the original point (x1, y1), with control point on it.
     {
       op = "ycurveTo",
-      data = { _r(qx1), _r(qy1), _r(x1), _r(y1) }
+      data = { qx1, qy1, x1, y1 }
     },
     -- BOTTOM SEGMENT
     -- Same thing but from (x2, y2) to (tx, ty) and backwards with thickness.
     {
       op = "move",
-      data = { _r(x2), _r(y2) }
+      data = { x2, y2 }
     },
     {
       op = "vcurveTo",
-      data = { _r(qx3), _r(qy3), _r(qx4), _r(qy4) }
+      data = { qx3, qy3, qx4, qy4 }
     },
     {
       op = "vcurveTo",
-      data = { _r(2 * qx4 - qx3), _r(2 * qy4 - qy3), _r(tx), _r(ty) }
+      data = { 2 * qx4 - qx3, 2 * qy4 - qy3, tx, ty }
     },
     {
       op = "ycurveTo",
-      data = { _r(2 * qx4b - qx3), _r(2 * qy4b - qy3), _r(qx4b), _r(qy4b) }
+      data = { 2 * qx4b - qx3, 2 * qy4b - qy3, qx4b, qy4b }
     },
     {
       op = "ycurveTo",
-      data = { _r(qx3), _r(qy3), _r(x2), _r(y2) }
+      data = { qx3, qy3, x2, y2 }
     },
   }
   return {

@@ -92,7 +92,6 @@ function PathRenderer:draw (drawable, clippable)
       path = table.concat({
         path,
         makeColorHelper(o.fill, false),
-        _r(o.strokeWidth), "w",
         "f"
       }, " ")
     -- fillSketch = stroke only
