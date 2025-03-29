@@ -12,8 +12,8 @@ local base = require("packages.base")
 local package = pl.class(base)
 package._name = "framebox"
 
-local PathRenderer = require("grail.renderer").PathRenderer
-local RoughPainter = require("grail.painters.rough").RoughPainter
+local PathRenderer = require("grail.renderer")
+local RoughPainter = require("grail.painters.rough")
 
 -- LOW-LEVEL REBOXING HELPERS
 

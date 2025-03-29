@@ -4,7 +4,7 @@
 -- 2022, 2023, 2025 Didier Willis
 --
 local PDFHelpers = require("grail.pdf.helpers")
-local _r, makeColorHelper = PDFHelpers._r, PDFHelpers.makeColorHelper
+local _r = PDFHelpers._r
 
 local DefaultPainter = pl.class()
 
@@ -363,93 +363,4 @@ function DefaultPainter.arc ()
   SU.error("Arc not implemented in DefaultPainter")
 end
 
-function DefaultPainter:draw (drawable, clippable)
-  local sets = drawable.sets or {}
-  local o = drawable.options
-  local precision = drawable.options.fixedDecimalPlaceDigits
-  local g = {}
-  for _, drawing in ipairs(sets) do
-    local path = self:opsToPath(drawing, precision)
-    if o.rounded == true then
-      path = path .. " 1 J 1 j"
-    end
-    -- path = stroke only
-    if drawing.type == "path" then
-      path = table.concat({
-          path,
-          makeColorHelper(o.stroke, true),
-          _r(o.strokeWidth), "w",
-          "S"
-      }, " ")
-    -- fillPath = fill only
-    elseif drawing.type == "fillPath" then
-      path = table.concat({
-        path,
-        makeColorHelper(o.fill, false),
-        _r(o.strokeWidth), "w",
-        "f"
-      }, " ")
-    -- fillSketch = stroke only
-    elseif drawing.type == "fillSketch" then
-      path = table.concat({
-        path,
-        makeColorHelper(o.fill, true),
-        _r(o.strokeWidth), "w",
-        "S"
-      }, " ")
-    -- shape = fill and stroke in one operation
-    elseif drawing.type == "shape" then
-      path = table.concat({
-        path,
-        makeColorHelper(o.stroke, true),
-        makeColorHelper(o.fill, false),
-        _r(o.strokeWidth), "w",
-        "B"
-      }, " ")
-    else
-      SU.error("Unknown drawing type: " .. drawing.type)
-    end
-    if path then
-      g[#g + 1] = path
-    end
-  end
-  local path = table.concat(g, " ")
-  if clippable then
-    -- Enclose drawing path in a group with the clipping path
-    clippable.options = drawable.options
-    local clip = self:opsToPath(clippable.sets[1], precision)
-     path = table.concat({
-       "q",
-       clip, "W n",
-       path,
-       "Q"
-     }, " ")
-  end
-  return path
-end
-
-function DefaultPainter.opsToPath (_, drawing, _)  -- self, drawing, precision
-  local path = {}
-  for _, item in ipairs(drawing.ops) do
-    local data = item.data
-    -- NOTE: we currently ignore the decimal precision option
-    if item.op == "move" then
-      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " m"
-    elseif item.op == 'bcurveTo' then
-      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " " .. _r(data[3]) .. " " .. _r(data[4]) .. " " .. _r(data[5]) .. " " .. _r(data[6]) .. " c"
-    elseif item.op == "vcurveTo" then
-      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " " .. _r(data[3]) .. " " .. _r(data[4]) .. " v"
-    elseif item.op == "ycurveTo" then
-      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " " .. _r(data[3]) .. " " .. _r(data[4]) .. " y"
-    elseif item.op == "rect" then
-      path[#path + 1] = _r(data[1]) .. " " .. _r(data[2]) .. " " .. _r(data[3]) .. " " .. _r(data[4]) .. " re"
-    elseif item.op == "lineTo" then
-      path[#path + 1] = _r(data[1]) .. " " ..  _r(data[2]) .. " l"
-    end
-  end
-  return table.concat(path, " ")
-end
-
-return {
-  DefaultPainter = DefaultPainter
-}
+return DefaultPainter
