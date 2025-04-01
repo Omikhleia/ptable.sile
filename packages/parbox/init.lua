@@ -10,9 +10,11 @@
 require("silex.types") -- Compatibility shims
 
 local base = require("packages.base")
-
 local package = pl.class(base)
 package._name = "parbox"
+
+local PathRenderer = require("grail.renderer")
+local RoughPainter = require("grail.painters.rough")
 
 -- PARBOXING FUNCTIONS
 
@@ -85,19 +87,40 @@ local function parboxFraming (options, content)
   return innerVbox, hlist
 end
 
-local function drawBorders (x, y, w, h, border, bordercolor)
-  -- The border was initially a debug feature, but it turned out to be neat
-  -- for tables (e.g. the ptable package).
-  -- There's a little ugly tweak here, the bottom and right borders are drawn
-  -- "outside" the box, so that successive parboxes have overlapping borders.
-  -- Tables (ptable package) rely on it... That's not perfect, but might not be
-  -- too much noticeable with a normal border thickness below 1pt or so...
-  if bordercolor then SILE.outputter:pushColor(bordercolor) end
-  if border[1] > 0 then SILE.outputter:drawRule(x, y, w, border[1]) end
-  if border[2] > 0 then SILE.outputter:drawRule(x, y + h, w, border[2]) end
-  if border[3] > 0 then SILE.outputter:drawRule(x, y, border[3], h + border[2]) end
-  if border[4] > 0 then SILE.outputter:drawRule(x + w, y, border[4], h + border[2]) end
-  if bordercolor then SILE.outputter:popColor() end
+-- The border was initially a debug feature, but it turned out to be neat
+-- for tables (e.g. the ptable package).
+-- @tparam number  x            X coordinate of the box
+-- @tparam number  y            Y coordinate of the box
+-- @tparam number  w            Width of the box
+-- @tparam number  h            Height of the box
+-- @tparam table   border       Border thicknesses (top, bottom, left, right)
+-- @tparam color   bordercolor  Border color
+-- @tparam boolean rough        Whether to use a rough painter
+local function drawBorders (x, y, w, h, border, bordercolor, rough)
+  local painter = rough and RoughPainter({
+    preserveVertices = true,
+    disableMultiStroke = true,
+  }) or nil
+  local graphics = PathRenderer(painter)
+  local top, bottom, left, right = border[1], border[2], border[3], border[4]
+  local hcorr = left / 2 + right / 2
+  if top > 0 then
+    local p = graphics:line(0, 0, w + hcorr, 0, { stroke = bordercolor, strokeWidth = top })
+    SILE.outputter:drawSVG(p, x - left / 2, y, w, 0, 1)
+  end
+  if bottom > 0 then
+    local p = graphics:line(0, 0, w + hcorr, 0, { stroke = bordercolor, strokeWidth = bottom })
+    SILE.outputter:drawSVG(p, x - left / 2, y + h, w, 0, 1)
+  end
+  local vcorr = top / 2 + bottom / 2
+  if left > 0 then
+    local p = graphics:line(0, 0, 0, h + vcorr, { stroke = bordercolor, strokeWidth = left })
+    SILE.outputter:drawSVG(p, x, y + h - top / 2, 0, h, 1)
+  end
+  if right > 0 then
+    local p = graphics:line(0, 0, 0, h + vcorr, { stroke = bordercolor, strokeWidth = right })
+    SILE.outputter:drawSVG(p, x + w, y + h - bottom / 2, 0, h, 1)
+  end
 end
 
 local function getBaselineExtents (vboxlist)
@@ -178,6 +201,7 @@ function package.makeParbox(_, options, content)
   local padding = options.padding and parseBorderOrPadding(options.padding, "padding") or { 0, 0, 0, 0 }
   local bordercolor =  options.bordercolor and SILE.types.color(options.bordercolor)
   local minimize = SU.boolean(options.minimize, false)
+  local rough = SU.boolean(options.rough, false)
 
   width = SILE.types.length(SU.cast("measurement", width)):absolute()
 
@@ -261,6 +285,7 @@ function package.makeParbox(_, options, content)
     offset = SILE.types.measurement(), -- INTERNAL: See comment below.
     border = border,
     bordercolor = bordercolor,
+    rough = rough,
     outputYourself= function (node, typesetter, _)
       local saveY = typesetter.frame.state.cursorY
       local saveX = typesetter.frame.state.cursorX
@@ -272,7 +297,8 @@ function package.makeParbox(_, options, content)
         node.width:tonumber(),
         node.depth:tonumber() + node.height:tonumber(),
         node.border,
-        node.bordercolor
+        node.bordercolor,
+        node.rough
       )
 
       typesetter.frame.state.cursorY = typesetter.frame.state.cursorY + node.yAdjust
@@ -455,7 +481,8 @@ containing a space-separated list of four lengths (“top bottom left right”).
 unique \autodoc:parameter{bordercolor} can be specified, the color specification being as defined in the
 \autodoc:package{color} package.\footnote{These border and padding options were expecially designed
 with tables in mind. For casual box framing, consider using a better-suited solution,
-such as the \autodoc:package{framebox} package.}
+such as the \autodoc:package{framebox} package. Another minor option, \autodoc:parameter{rough=true}, may be
+used to draw the borders in a hand-drawn style, if you are into that.}
 
 There is still one advanced option we haven’t described so far, \autodoc:parameter{minimize=true}. When passed,
 then the width of the parbox is considered as a maximum width, would line-breaking have to occur,
