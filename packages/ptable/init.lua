@@ -6,6 +6,9 @@
 --
 require("silex.types") -- Compatibility shims
 
+local PathRenderer = require("grail.renderer")
+local RoughPainter = require("grail.painters.rough")
+
 local base = require("packages.base")
 
 local makeParbox -- assigned at package initialization
@@ -95,13 +98,14 @@ end
 -- (i.e. was stolen back and or stored earlier).
 -- It also assumes the box dimensions at this step are numbers,
 -- not lengths (with stretch/shrink).
-local colorBox = function (hbox, color)
+local colorBox = function (hbox, color, rough)
   if not color then
     SILE.typesetter:pushHbox(hbox)
   else
     SILE.typesetter:pushHbox({
       inner = hbox,
       color = color,
+      rough = rough,
       width = hbox.width,
       height = hbox.height,
       depth = hbox.depth,
@@ -115,13 +119,20 @@ local colorBox = function (hbox, color)
         -- need to compute the scaled ratio with respect to the the line).
         -- In other terms, it works here due to other logic before, but not
         -- take it as a good example of how to color an hbox.
-        SILE.outputter:pushColor(self.color)
-        SILE.outputter:drawRule(
-          saveX,
-          saveY - self.height:tonumber(),
+        local painter = rough and RoughPainter({
+          preserveVertices = true,
+        }) or nil
+        local graphics = PathRenderer(painter)
+        local p = graphics:rectangle(
+          0,
+          0,
           self.width:tonumber(),
-          self.height:tonumber() + self.depth:tonumber())
-        SILE.outputter:popColor()
+          self.height:tonumber() + self.depth:tonumber(), {
+            fill = self.color,
+            stroke = "none",
+            strokeWidth = 0.4
+          })
+        SILE.outputter:drawSVG(p, saveX, saveY, self.width, self.height, 1)
 
         self.inner:outputYourself(SILE.typesetter, line)
 
@@ -143,11 +154,12 @@ local cellNode = pl.class({
   hlist = {}, -- migrating content from the parbox
   valign = nil,
   color = nil,
-  _init = function (self, cellBox, hlist, valign, color)
+  _init = function (self, cellBox, hlist, valign, color, rough)
     self.cellBox = cellBox
     self.hlist = hlist
     self.valign = valign
     self.color = color
+    self.rough = rough
   end,
   height = function (self)
     return self.cellBox.height + self.cellBox.depth
@@ -166,7 +178,7 @@ local cellNode = pl.class({
     end
   end,
   shipout = function (self)
-    colorBox(self.cellBox, self.color) -- output parbox re-wrapped in color box
+    colorBox(self.cellBox, self.color, self.rough) -- output parbox re-wrapped in color box
     SILE.typesetter:pushHlist(self.hlist) -- re-insert the migrating content
   end
 })
@@ -209,9 +221,10 @@ local rowNode = pl.class({
   type = "rownode",
   cells = {},
   color = nil,
-  _init = function (self, cells, color)
+  _init = function (self, cells, color, rough)
     self.cells = cells
     self.color = color
+    self.rough = rough
   end,
   height = function (self)
     local h = SILE.types.length()
@@ -237,7 +250,7 @@ local rowNode = pl.class({
         self.cells[i]:shipout()
       end
     end)
-    colorBox(hbox, self.color) -- re-wrap it with color
+    colorBox(hbox, self.color, self.rough) -- re-wrap it with color
     SILE.typesetter:pushHlist(hlist) -- propagate migrating content
     SILE.typesetter:leaveHmode(1) -- 1 = do not eject to page yet (see repeating header logic)
   end
@@ -252,18 +265,20 @@ processTable["cell"] = function (content, args, tablespecs)
     local color = content.options.background and SILE.types.color(content.options.background)
     local pad = parsePadding(content.options.padding or tablespecs.cellpadding)
     local width = computeCellWidth(args.col, span, tablespecs.cols)
+    local rough = tablespecs.rough
 
     -- build the parbox...
     local cellBox, hlist = makeParbox({ width = width - pad[3] - pad[4],
               padding = pad,
               border = content.options.border or tablespecs.cellborder,
               bordercolor = tablespecs.bordercolor,
+              rough = rough,
               valign = "middle", strut="character" }, function ()
       temporarilyClearFragileSettings(function()
         SILE.call("ptable:cell:hook", content.options, content)
       end)
     end)
-    return cellNode(cellBox, hlist, content.options.valign, color)
+    return cellNode(cellBox, hlist, content.options.valign, color, rough)
   end
 
 processTable["celltable"] = function (content, args, tablespecs)
@@ -305,7 +320,7 @@ processTable["row"] = function (content, args, tablespecs)
       end
       -- All text nodes are silently ignored
     end
-    return rowNode(cells, color)
+    return rowNode(cells, color, tablespecs.rough)
   end
 
 -- COMMANDS
@@ -321,8 +336,8 @@ function package:_init ()
   end
   self.class:registerPostinit(function()
     -- TYPESETTER TWEAKS
-    -- N.B. We do this at class post-init since the base class's post-init now
-    -- now creates the typesetter at this point (SILE > v0.14).
+    -- N.B. We do this at class post-init since the base class's post-init
+    -- creates the typesetter at this point (SILE > v0.14).
     --
     -- We modify the typesetter globally to check whether the content on a new
     -- frame is a table row, which may need a repeating header row to be inserted.
@@ -368,13 +383,15 @@ function package:registerCommands ()
     local cellpadding = options.cellpadding or "4pt"
     local cellborder = options.cellborder or "0.4pt"
     local bordercolor = options.bordercolor
+    local rough = SU.boolean(options.rough, false)
 
     local totalWidth = SU.sum(cols)
     local tablespecs = {
       cols = cols,
       cellpadding = cellpadding,
       cellborder = cellborder,
-      bordercolor = bordercolor
+      bordercolor = bordercolor,
+      rough = rough,
     }
 
     SILE.typesetter:leaveHmode()

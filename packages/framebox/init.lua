@@ -1,7 +1,7 @@
 --
 -- Fancy framed boxes for SILE
 -- License: MIT
--- 2021-2023 Didier Willis
+-- 2021-2023, 2025 Didier Willis
 --
 -- KNOWN ISSUE: RTL and BTT writing directions are not officialy supported yet (untested)
 --
@@ -12,16 +12,21 @@ local base = require("packages.base")
 local package = pl.class(base)
 package._name = "framebox"
 
-local graphics = require("packages.framebox.graphics.renderer")
-local PathRenderer = graphics.PathRenderer
-local RoughPainter = graphics.RoughPainter
+local PathRenderer = require("grail.renderer")
+local RoughPainter = require("grail.painters.rough")
 
 -- LOW-LEVEL REBOXING HELPERS
 
 -- Rewraps an hbox into another fake hbox, adding padding all around it.
 -- It assumes the original hbox is NOT in the typesetter queue
--- (i.e. was stolen back and stored).
+-- (i.e. was only built and stored earlier).
 -- It returns the wrapped box without pushing it to the typesetter.
+-- @tparam hbox       hbox         The hbox to wrap for padding
+-- @tparam number     left         Left padding (in points)
+-- @tparam number     right        Right padding (in points)
+-- @tparam number     top          Top padding (in points)
+-- @tparam number     bottom       Bottom padding (in points)
+-- @treturn hbox                   (Fake) hbox
 local function adjustPaddingHbox (hbox, left, right, top, bottom)
   return { -- HACK NOTE: Efficient but might be bad to fake an hbox here without all methods.
     inner = hbox,
@@ -44,7 +49,11 @@ end
 -- (i.e. was only built and stored earlier).
 -- It pushes the resulting hbox to the typesetter queue,
 -- immediately followed by any passed hlist (migrating nodes).
-local function frameHbox (hbox, hlist, shadowsize, pathfunc)
+-- @tparam hbox       hbox         The hbox to re-frame
+-- @tparam array      hlist        Migrating node list
+-- @tparam number|nil shadowsize   Shadow size (in points)
+-- @tparam function   pathfunc     Path construction calback
+local function frameHbox (hbox, hlist, shadowsize, pathfn)
   local shadowpadding = shadowsize or 0
   SILE.typesetter:pushHbox({
     inner = hbox,
@@ -66,7 +75,7 @@ local function frameHbox (hbox, hlist, shadowsize, pathfunc)
       local d = self.depth:tonumber() - shadowpadding
 
       -- Compute and draw the PDF graphics (path)
-      local path = pathfunc(w, h, d)
+      local path = pathfn(w, h, d)
       if path then
         SILE.outputter:drawSVG(path, saveX, saveY, w, h + d, 1)
       end
@@ -203,15 +212,16 @@ function package:registerCommands ()
       hbox = adjustPaddingHbox(hbox, padding, padding, padding, padding)
     end
 
-    local roughOpts = {}
-    if options.roughness then roughOpts.roughness = SU.cast("number", options.roughness) end
-    if options.bowing then roughOpts.bowing = SU.cast("number", options.bowing) end
-    roughOpts.preserveVertices = SU.boolean(options.preserve, false)
-    roughOpts.disableMultiStroke = SU.boolean(options.singlestroke, false)
-    roughOpts.strokeWidth = borderwidth
-    roughOpts.stroke = border and bordercolor or 'none'
-    roughOpts.fill = fillcolor
-    roughOpts.fillStyle = options.fillstyle or 'hachure'
+    local roughOpts = {
+      roughness = options.roughness and SU.cast("number", options.roughness) or nil,
+      bowing = options.bowing and SU.cast("number", options.bowing) or nil,
+      preserveVertices = SU.boolean(options.preserve, false),
+      disableMultiStroke = SU.boolean(options.singlestroke, false),
+      strokeWidth = borderwidth,
+      stroke = border and bordercolor or 'none',
+      fill = fillcolor,
+      fillStyle = options.fillstyle or 'hachure'
+    }
 
     frameHbox(hbox, hlist, nil, function(w, h, d)
       local H = h + d
@@ -249,12 +259,16 @@ function package:registerCommands ()
       local lb, rb
       if left then
         lb = painter:curlyBrace(bracewidth, d, bracewidth, 2*d+h, bracewidth, bracethickness, curvyness, {
-          fill = bracecolor, stroke = bracecolor, strokeWidth = strokewidth
+          fill = bracecolor,
+          stroke = bracecolor,
+          strokeWidth = strokewidth
         })
       end
       if right then
         rb = painter:curlyBrace(w-bracewidth, d, w-bracewidth, 2*d+h, -bracewidth, bracethickness, curvyness, {
-          fill = bracecolor, stroke = bracecolor, strokeWidth = strokewidth
+          fill = bracecolor,
+          stroke = bracecolor,
+          strokeWidth = strokewidth
         })
       end
       return lb and (rb and lb .. " " .. rb or lb) or rb

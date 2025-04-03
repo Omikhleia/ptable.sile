@@ -28,7 +28,7 @@ box. The package offers various interesting options and goodies.
 
 ## Installation
 
-These packages require SILE v0.14.13 or upper.
+These packages require SILE v0.15.10 or upper.
 
 Installation relies on the **luarocks** package manager.
 
