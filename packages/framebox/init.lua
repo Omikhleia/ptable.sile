@@ -52,7 +52,7 @@ end
 -- @tparam hbox       hbox         The hbox to re-frame
 -- @tparam array      hlist        Migrating node list
 -- @tparam number|nil shadowsize   Shadow size (in points)
--- @tparam function   pathfunc     Path construction calback
+-- @tparam function   pathfn       Path construction calback
 local function frameHbox (hbox, hlist, shadowsize, pathfn)
   local shadowpadding = shadowsize or 0
   SILE.typesetter:pushHbox({

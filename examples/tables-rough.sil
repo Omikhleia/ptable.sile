@@ -2,7 +2,7 @@
 \neverindent
 \nofolios
 \use[module=packages.ptable]
-\font[family=Libertinus Serif, size=10]
+\font[family=Mynerve, size=10]
 
 \center{\font[weight=700, size=12]{Hand-drawn Tables?}}
 
