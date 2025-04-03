@@ -57,12 +57,12 @@ parboxTypesetter._name = 'parbox'
 
 parboxTypesetter._init = function (self, frame)
   baseTypesetter._init(self, frame)
-  self.hlist = {}
+  self._parbox_hlist = {}
 end
 
 parboxTypesetter.leaveHmode = function (self, _)
   -- Move migrating material gathered so far.
-  moveMigrating(self, self.hlist)
+  moveMigrating(self, self._parbox_hlist)
   -- NEVER output, just gather the nodes, hence the enforced 1 here.
   baseTypesetter.leaveHmode(self, 1)
 end
@@ -82,7 +82,7 @@ local function parboxFraming (options, content)
   SILE.typesetter:leaveHmode(1)
 
   local innerVbox = SILE.typesetter.state.outputQueue
-  local hlist = SILE.typesetter.hlist
+  local hlist = SILE.typesetter._parbox_hlist
 
   SILE.typesetter = oldTypesetter
   SILE.settings:popState()
