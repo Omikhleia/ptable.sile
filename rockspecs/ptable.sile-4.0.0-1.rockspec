@@ -1,8 +1,9 @@
 rockspec_format = "3.0"
 package = "ptable.sile"
-version = "dev-1"
+version = "4.0.0-1"
 source = {
   url = "git+https://github.com/Omikhleia/ptable.sile.git",
+  tag = "v4.0.0",
 }
 description = {
   summary = "Paragraph boxes, framed boxes and table packages for the SILE typesetting system.",

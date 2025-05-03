@@ -1,20 +1,31 @@
 --
 -- A table package for SILE
 -- Or rather "parbox-based tables", using the parbox package as a building block.
--- 2021-2023 Didier Willis
--- License: MIT
 --
-require("silex.types") -- Compatibility shims
-
+-- License: GPL-3.0-or-later
+--
+-- Copyright (C) 2021-2025 Didier Willis
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+--
 local PathRenderer = require("grail.renderer")
 local RoughPainter = require("grail.painters.rough")
 
 local base = require("packages.base")
-
-local makeParbox -- assigned at package initialization
-
 local package = pl.class(base)
 package._name = "ptable"
+
+local makeParbox -- assigned at package initialization
 
 -- UTILITY FUNCTIONS
 
@@ -98,7 +109,7 @@ end
 -- (i.e. was stolen back and or stored earlier).
 -- It also assumes the box dimensions at this step are numbers,
 -- not lengths (with stretch/shrink).
-local colorBox = function (hbox, color, rough)
+local function colorBox (hbox, color, rough)
   if not color then
     SILE.typesetter:pushHbox(hbox)
   else
@@ -191,22 +202,22 @@ local cellTableNode = pl.class({
     self.rows = rows
     self.width = width
   end,
-  height = function(self)
+  height = function (self)
     local h = 0
     for i = 1, #self.rows do
       h = self.rows[i]:height() + h
     end
     return h
   end,
-  adjustBy = function(self, adjustement)
+  adjustBy = function (self, adjustement)
     -- Distribute the adjustment evenly on all rows.
     for i = 1, #self.rows do
       self.rows[i]:adjustBy(adjustement / #self.rows)
     end
   end,
   shipout = function (self)
-    SILE.call("parbox", { width = self.width, strut = "character", valign = "middle" }, function()
-      temporarilyClearFragileSettings(function()
+    SILE.call("parbox", { width = self.width, strut = "character", valign = "middle" }, function ()
+      temporarilyClearFragileSettings(function ()
         for i = 1, #self.rows do
           -- Set up queue but avoid a newPar? Apparently not needed here.
           -- SILE.typesetter.state.nodes[#SILE.typesetter.state.nodes+1] = SILE.types.node.zerohbox()
@@ -274,7 +285,7 @@ processTable["cell"] = function (content, args, tablespecs)
               bordercolor = tablespecs.bordercolor,
               rough = rough,
               valign = "middle", strut="character" }, function ()
-      temporarilyClearFragileSettings(function()
+      temporarilyClearFragileSettings(function ()
         SILE.call("ptable:cell:hook", content.options, content)
       end)
     end)
@@ -327,14 +338,11 @@ processTable["row"] = function (content, args, tablespecs)
 
 function package:_init ()
   base._init(self)
-  self.class:loadPackage("parbox")
-  if not self.class.packages.parbox or not self.class.packages.parbox.makeParbox then
-    SU.error("Unexpected issue loading the parbox package (or version mismatch)")
-  end
+  self:loadPackage("parbox")
   makeParbox = function (options, content)
     return self.class.packages.parbox:makeParbox(options, content)
   end
-  self.class:registerPostinit(function()
+  self.class:registerPostinit(function ()
     -- TYPESETTER TWEAKS
     -- N.B. We do this at class post-init since the base class's post-init
     -- creates the typesetter at this point (SILE > v0.14).
@@ -398,7 +406,7 @@ function package:registerCommands ()
     SILE.call("medskip")
 
     local headerVbox
-    temporarilyClearFragileSettings(function()
+    temporarilyClearFragileSettings(function ()
       SILE.settings:set("document.parindent", SILE.types.length())
       local iRow = 1
       for i = 1, #content do
@@ -448,7 +456,7 @@ function package:registerCommands ()
   -- cell alignment, which is handy e.g. for Markdown support.
   -- Other packages and classes could redefine this hook to support
   -- their own options (such as cell styles etc.)
-  self:registerCommand("ptable:cell:hook", function(options, content)
+  self:registerCommand("ptable:cell:hook", function (options, content)
     if options.halign == "center" then
       SILE.call("center", {}, content)
     elseif options.halign == "left" then

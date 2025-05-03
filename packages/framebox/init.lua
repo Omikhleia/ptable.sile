@@ -1,19 +1,30 @@
 --
 -- Fancy framed boxes for SILE
--- License: MIT
--- 2021-2023, 2025 Didier Willis
 --
 -- KNOWN ISSUE: RTL and BTT writing directions are not officialy supported yet (untested)
 --
-require("silex.types") -- Compatibility shims
-
-local base = require("packages.base")
-
-local package = pl.class(base)
-package._name = "framebox"
-
+-- License: GPL-3.0-or-later
+--
+-- Copyright (C) 2021-2025 Didier Willis
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+--
 local PathRenderer = require("grail.renderer")
 local RoughPainter = require("grail.painters.rough")
+
+local base = require("packages.base")
+local package = pl.class(base)
+package._name = "framebox"
 
 -- LOW-LEVEL REBOXING HELPERS
 
@@ -33,7 +44,7 @@ local function adjustPaddingHbox (hbox, left, right, top, bottom)
     width = hbox.width + left + right,
     height = hbox.height + top,
     depth = hbox.depth + bottom,
-    outputYourself = function(self, typesetter, line)
+    outputYourself = function (self, typesetter, line)
       typesetter.frame:advanceWritingDirection(left)
       self.inner:outputYourself(typesetter, line)
       typesetter.frame:advanceWritingDirection(right)
@@ -60,7 +71,7 @@ local function frameHbox (hbox, hlist, shadowsize, pathfn)
     width = hbox.width,
     height = hbox.height,
     depth = hbox.depth,
-    outputYourself = function(self, typesetter, line)
+    outputYourself = function (self, typesetter, line)
       local saveX = typesetter.frame.state.cursorX
       local saveY = typesetter.frame.state.cursorY
       -- Scale to line to take into account strech/shrinkability
@@ -92,7 +103,7 @@ end
 
 -- SETTINGS
 
-function package.declareSettings (_)
+function package:declareSettings ()
   SILE.settings:declare({
     parameter = "framebox.padding",
     type = "measurement",
@@ -125,7 +136,7 @@ end
 -- BASIC BOX-FRAMING COMMANDS
 
 function package:registerCommands ()
-  self:registerCommand("framebox", function(options, content)
+  self:registerCommand("framebox", function (options, content)
     local padding = SU.cast("measurement", options.padding or SILE.settings:get("framebox.padding")):tonumber()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
     local bordercolor
@@ -140,7 +151,7 @@ function package:registerCommands ()
     local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
-    frameHbox(hbox, hlist, shadowsize, function(w, h, d)
+    frameHbox(hbox, hlist, shadowsize, function (w, h, d)
       local painter = PathRenderer()
       local shadowpath, path
       if shadowsize ~= 0 then
@@ -156,7 +167,7 @@ function package:registerCommands ()
     end)
   end, "Frames content in a square box.")
 
-  self:registerCommand("roundbox", function(options, content)
+  self:registerCommand("roundbox", function (options, content)
     local padding = SU.cast("measurement", options.padding or SILE.settings:get("framebox.padding")):tonumber()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
     local bordercolor
@@ -173,7 +184,7 @@ function package:registerCommands ()
     local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
-    frameHbox(hbox, hlist, shadowsize, function(w, h, d)
+    frameHbox(hbox, hlist, shadowsize, function (w, h, d)
       local H = h + d
       local smallest = w < H and w or H
       cornersize = cornersize < 0.5 * smallest and cornersize or math.floor(0.5 * smallest)
@@ -193,7 +204,7 @@ function package:registerCommands ()
     end)
   end, "Frames content in a rounded box.")
 
-  self:registerCommand("roughbox", function(options, content)
+  self:registerCommand("roughbox", function (options, content)
     local padding = SU.cast("measurement", options.padding or SILE.settings:get("framebox.padding")):tonumber()
     local border = SU.boolean(options.border, true)
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
@@ -223,7 +234,7 @@ function package:registerCommands ()
       fillStyle = options.fillstyle or 'hachure'
     }
 
-    frameHbox(hbox, hlist, nil, function(w, h, d)
+    frameHbox(hbox, hlist, nil, function (w, h, d)
       local H = h + d
       local x = 0
       local y = d
@@ -238,7 +249,7 @@ function package:registerCommands ()
     end)
   end, "Frames content in a rough (sketchy) box.")
 
-  self:registerCommand("bracebox", function(options, content)
+  self:registerCommand("bracebox", function (options, content)
     local padding = SU.cast("measurement", options.padding or SILE.types.measurement("0.25em")):tonumber()
     local strokewidth = SU.cast("measurement", options.strokewidth or SILE.types.measurement("0.033em")):tonumber()
     local bracecolor = options.bracecolor and SILE.types.color(options.bracecolor)
@@ -254,7 +265,7 @@ function package:registerCommands ()
     local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, left and bracewidth + padding or 0, right and bracewidth + padding or 0, 0, 0)
 
-    frameHbox(hbox, hlist, nil, function(w, h, d)
+    frameHbox(hbox, hlist, nil, function (w, h, d)
       local painter = PathRenderer()
       local lb, rb
       if left then

@@ -2,19 +2,31 @@
 -- Paragraph blocks ("parbox") for SILE
 -- Or how to wrap width-contrained vboxes into an hbox:
 -- A building block for more advanced concepts.
--- 2021-2023 Didier Willis
--- License: MIT
 --
--- Known limitations: LTR-TTB writing direction is assumed.
+-- KNOWN LIMITATION: LTR-TTB writing direction is assumed.
 --
-require("silex.types") -- Compatibility shims
+-- License: GPL-3.0-or-later
+--
+-- Copyright (C) 2021-2025 Didier Willis
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+--
+local PathRenderer = require("grail.renderer")
+local RoughPainter = require("grail.painters.rough")
 
 local base = require("packages.base")
 local package = pl.class(base)
 package._name = "parbox"
-
-local PathRenderer = require("grail.renderer")
-local RoughPainter = require("grail.painters.rough")
 
 -- PARBOXING FUNCTIONS
 
@@ -24,11 +36,11 @@ local RoughPainter = require("grail.painters.rough")
 -- throw it away after boxing.
 local nb_ = 1
 local function parboxTempFrame (options)
-  local id = "parbox_"..nb_
+  local id = "parbox_" .. nb_
   local newFrame = SILE.newFrame({
     id = id
   })
-  nb_ = nb_+1
+  nb_ = nb_ + 1
   newFrame:constrain("top", SILE.types.length())
   newFrame:constrain("bottom", SILE.types.length())
   newFrame:constrain("left", SILE.types.length())
@@ -195,11 +207,11 @@ end
 
 function package:_init ()
   base._init(self)
-  self.class:loadPackage("rebox")
-  self.class:loadPackage("struts")
+  self:loadPackage("rebox")
+  self:loadPackage("struts")
 end
 
-function package.makeParbox(_, options, content)
+function package:makeParbox (options, content)
   local width = SU.required(options, "width", "parbox")
   local strut = options.strut or "none"
   local border = options.border and parseBorderOrPadding(options.border, "border") or { 0, 0, 0, 0 }
