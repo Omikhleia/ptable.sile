@@ -1,16 +1,14 @@
 # ptable.sile
 
-[![license](https://img.shields.io/github/license/Omikhleia/ptable.sile?label=License)](LICENSE)
+[![License](https://img.shields.io/github/license/Omikhleia/ptable.sile?label=License)](LICENSE)
 [![Luacheck](https://img.shields.io/github/actions/workflow/status/Omikhleia/ptable.sile/luacheck.yml?branch=main&label=Luacheck&logo=Lua)](https://github.com/Omikhleia/ptable.sile/actions?workflow=Luacheck)
 [![Luarocks](https://img.shields.io/luarocks/v/Omikhleia/ptable.sile?label=Luarocks&logo=Lua)](https://luarocks.org/modules/Omikhleia/ptable.sile)
 
-This package collection for the [SILE](https://github.com/sile-typesetter/sile) typesetting
-system provides struts, paragraph boxes (parbox), framed boxes (framebox) and
-tables (ptable).
+This package collection for the [SILE](https://github.com/sile-typesetter/sile) typesetting system provides struts, paragraph boxes (parbox), framed boxes (framebox) and tables (ptable).
 
 The two first are building blocks:
 
-- In professional typesetting, a “strut” is a rule with no width but a certain
+- In professional typesetting, a “strut” is a rule with no width but a certain 
   height and depth, to help guaranteeing that an element has a certain minimal
   height and depth, e.g. in tabular environments or in boxes.
 - A paragraph box (“parbox”) is an horizontal box (so technically an “hbox”)
@@ -21,14 +19,13 @@ Tables are what you would expect.
 
 ![tables](tables.png "Table examples")
 
-As the name implies, framed boxes are horizontal content framed in a nice
-box. The package offers various interesting options and goodies.
+As the name implies, framed boxes are horizontal content framed in a nice box. The package offers various interesting options and goodies.
 
 ![framed boxes](framebox.png "Framed box examples")
 
 ## Installation
 
-These packages require SILE v0.15.10 or upper.
+These packages require SILE v0.15.12.
 
 Installation relies on the **luarocks** package manager.
 
@@ -45,10 +42,8 @@ luarocks install ptable.sile
 Examples are provided in the [examples](./examples) folder.
 
 The in-code package documentation may also be useful.
-A readable version of the documentation is included in the User Manual for
-the [resilient.sile](https://github.com/Omikhleia/resilient.sile) collection
-of classes and packages.
+A readable version of the documentation is included in the User Manual for the [resilient.sile](https://github.com/Omikhleia/resilient.sile) collection of classes and packages.
 
 ## License
 
-All SILE-related code and samples in this repository are released under the MIT License, (c) 2021-2023 Omikhleia.
+The code and samples in this repository are released under the GNU General Public License v3.0, (c) 2021-2025 Omikhleia.
