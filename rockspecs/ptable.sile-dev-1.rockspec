@@ -11,7 +11,7 @@ description = {
     (parbox), framed boxes (framebox) and tables (ptable).
   ]],
   homepage = "https://github.com/Omikhleia/ptable.sile",
-  license = "GPL-3.0",
+  license = "MIT",
 }
 dependencies = {
   "lua >= 5.1",
