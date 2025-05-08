@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "ptable.sile"
-version = "4.0.0-1"
+version = "4.1.0-1"
 source = {
   url = "git+https://github.com/Omikhleia/ptable.sile.git",
-  tag = "v4.0.0",
+  tag = "v4.1.0",
 }
 description = {
   summary = "Paragraph boxes, framed boxes and table packages for the SILE typesetting system.",
@@ -12,7 +12,7 @@ description = {
     (parbox), framed boxes (framebox) and tables (ptable).
   ]],
   homepage = "https://github.com/Omikhleia/ptable.sile",
-  license = "GPL-3.0",
+  license = "MIT",
 }
 dependencies = {
   "lua >= 5.1",
