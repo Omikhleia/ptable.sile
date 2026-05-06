@@ -1,0 +1,82 @@
+\begin[papersize=a5,class=plain]{document}
+\neverindent
+\nofolios
+\use[module=packages.parbox]
+\use[module=packages.framebox]
+\use[module=packages.leaders]
+\language[main=en]
+\font[family=Libertinus Serif, size=14]
+
+\center{\font[weight=700]{Do Boxes With Gradients Rock?}}
+
+\bigskip
+
+\begin{center}
+\begin[side=both, bracecolor=flare 90, curvyness=0.7, padding=1em, bracethickness=0.1em, bracewidth=0.4em]{bracebox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{bracebox}
+\end{center}
+
+\bigskip
+
+\begin{center}
+\begin[padding=1em, shadow=true, borderwidth=0, fillcolor=metallicsteel 90, shadowcolor=200]{framebox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{framebox}
+\end{center}
+
+\bigskip
+
+\begin{center}
+\begin[padding=1em, shadow=true, borderwidth=0, fillcolor=omissible, shadowcolor=200, cornersize=20pt]{roundbox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{roundbox}
+\end{center}
+
+\bigskip
+
+\begin{center}
+\begin[padding=1em, bordercolor=metallicsteel 90, fillcolor=omissiblecopper 90, enlarge=true]{roughbox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{roughbox}
+\end{center}
+
+\bigskip
+
+\begin{center}
+\begin[padding=1em, bordercolor=gray, fillcolor=crest, fillstyle=cross-hatch, enlarge=true]{roughbox}
+\begin[valign=middle,width=80%fw,minimize=true]{parbox}
+\begin{center}
+\font[weight=700]{Sherlock Holmes}\par
+221b Baker Street — London NW1 6XE\par
+sherlock.holmes@sile.org\par
+\end{center}
+\end{parbox}
+\end{roughbox}
+\end{center}
+
+\end{document}
