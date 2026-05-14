@@ -8,10 +8,24 @@
 --
 local PathRenderer = require("grail.renderer")
 local RoughPainter = require("grail.painters.rough")
+local Color = require("grail.color")
 
 local base = require("packages.base")
 local package = pl.class(base)
 package._name = "framebox"
+
+function package:loadOptPackage (pack)
+   local ok, _ = pcall(function ()
+      self:loadPackage(pack)
+      return true
+   end)
+   return ok
+end
+
+function package:_init ()
+  base._init(self)
+  self:loadOptPackage("resilient.gradients")
+end
 
 -- LOW-LEVEL REBOXING HELPERS
 
@@ -51,37 +65,48 @@ end
 -- @tparam array      hlist        Migrating node list
 -- @tparam number|nil shadowsize   Shadow size (in points)
 -- @tparam function   pathfn       Path construction calback
-local function frameHbox (hbox, hlist, shadowsize, pathfn)
+function package:_frameHbox (hbox, hlist, shadowsize, pathfn)
   local shadowpadding = shadowsize or 0
   SILE.typesetter:pushHbox({
     inner = hbox,
     width = hbox.width,
     height = hbox.height,
     depth = hbox.depth,
-    outputYourself = function (self, typesetter, line)
+    outputYourself = function (box, typesetter, line)
       local saveX = typesetter.frame.state.cursorX
       local saveY = typesetter.frame.state.cursorY
       -- Scale to line to take into account strech/shrinkability
-      local outputWidth = self:scaledWidth(line)
+      local outputWidth = box:scaledWidth(line)
       -- Force advancing to get the new cursor position
       typesetter.frame:advanceWritingDirection(outputWidth)
       local newX = typesetter.frame.state.cursorX
 
       -- Compute the target width, height, depth for the frame
       local w = (newX - saveX):tonumber() - shadowpadding
-      local h = self.height:tonumber()
-      local d = self.depth:tonumber() - shadowpadding
+      local h = box.height:tonumber()
+      local d = box.depth:tonumber() - shadowpadding
+      local H = h + d
 
       -- Compute and draw the PDF graphics (path)
-      local path = pathfn(w, h, d)
+      local path, grads = pathfn(w, h, d)
       if path then
-        SILE.outputter:drawSVG(path, saveX, saveY, w, h + d, 1)
+        local pkg = self.class.packages["resilient.gradients"]
+        if grads and #grads > 0 then
+          if pkg then
+            for _, grad in ipairs(grads) do
+              pkg:outputGradient(grad, saveX:tonumber(), saveY:tonumber() + d, saveX:tonumber() + w, saveY:tonumber() + H + d)
+            end
+          else
+            SU.warn("Gradient package not loaded, gradients will not be rendered.")
+          end
+        end
+        SILE.outputter:drawSVG(path, saveX, saveY, w, H, 1)
       end
 
       -- Restore cursor position and output the content last (so it appears
       -- on top of the frame)
       typesetter.frame.state.cursorX = saveX
-      self.inner:outputYourself(typesetter, line)
+      box.inner:outputYourself(typesetter, line)
       typesetter.frame.state.cursorX = newX
     end
   })
@@ -128,29 +153,37 @@ function package:registerCommands ()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
     local bordercolor
     if borderwidth ~= 0 then
-      bordercolor = options.bordercolor and SILE.types.color(options.bordercolor)
+      bordercolor = options.bordercolor and Color(options.bordercolor)
     end
-    local fillcolor = options.fillcolor and SILE.types.color(options.fillcolor) or 'none'
+    local fillcolor = options.fillcolor and Color(options.fillcolor) or 'none'
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
-    local shadowcolor = shadow and options.shadowcolor and SILE.types.color(options.shadowcolor)
+    local shadowcolor = shadow and options.shadowcolor and Color(options.shadowcolor)
 
     local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
-    frameHbox(hbox, hlist, shadowsize, function (w, h, d)
+    self:_frameHbox(hbox, hlist, shadowsize, function (w, h, d)
       local painter = PathRenderer()
-      local shadowpath, path
+      local shadowpath, path, shadowgrad, grad
       if shadowsize ~= 0 then
-        shadowpath = painter:rectangleShadow(0, d, w , h + d, shadowsize, {
+        shadowpath, shadowgrad = painter:rectangleShadow(0, d, w , h + d, shadowsize, {
           fill = shadowcolor,
           stroke = 'none'
         })
       end
-      path = painter:rectangle(0, d , w , h + d, {
+      path, grad = painter:rectangle(0, d , w , h + d, {
         fill = fillcolor, stroke = bordercolor, strokeWidth = borderwidth
       })
-      return shadowpath and shadowpath .. " " .. path or path
+      path = shadowpath and (shadowpath .. " " .. path) or path
+      if shadowgrad then
+        if grad then
+          pl.tablex.insertvalues(grad, shadowgrad)
+        else
+          grad = shadowgrad
+        end
+      end
+      return path, grad
     end)
   end, "Frames content in a square box.")
 
@@ -159,35 +192,43 @@ function package:registerCommands ()
     local borderwidth = SU.cast("measurement", options.borderwidth or SILE.settings:get("framebox.borderwidth")):tonumber()
     local bordercolor
     if borderwidth ~= 0 then
-      bordercolor = options.bordercolor and SILE.types.color(options.bordercolor)
+      bordercolor = options.bordercolor and Color(options.bordercolor)
     end
-    local fillcolor = options.fillcolor and SILE.types.color(options.fillcolor) or 'none'
+    local fillcolor = options.fillcolor and Color(options.fillcolor) or 'none'
     local shadow = SU.boolean(options.shadow, false)
     local shadowsize = shadow and SU.cast("measurement", options.shadowsize or SILE.settings:get("framebox.shadowsize")):tonumber() or 0
-    local shadowcolor = shadow and options.shadowcolor and SILE.types.color(options.shadowcolor)
+    local shadowcolor = shadow and options.shadowcolor and Color(options.shadowcolor)
 
     local cornersize = SU.cast("measurement", options.cornersize or SILE.settings:get("framebox.cornersize")):tonumber()
 
     local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, padding, padding + shadowsize, padding, padding + shadowsize)
 
-    frameHbox(hbox, hlist, shadowsize, function (w, h, d)
+    self:_frameHbox(hbox, hlist, shadowsize, function (w, h, d)
       local H = h + d
       local smallest = w < H and w or H
       cornersize = cornersize < 0.5 * smallest and cornersize or math.floor(0.5 * smallest)
 
       local painter = PathRenderer()
-      local shadowpath, path
+      local shadowpath, path, shadowgrad, grad
       if shadowsize ~= 0 then
-        shadowpath = painter:roundedRectangleShadow(0, d , w , H, cornersize, cornersize, shadowsize, {
+        shadowpath, shadowgrad = painter:roundedRectangleShadow(0, d , w , H, cornersize, cornersize, shadowsize, {
           fill = shadowcolor,
           stroke = 'none'
         })
       end
-      path = painter:roundedRectangle(0, d , w , H, cornersize, cornersize, {
+      path, grad = painter:roundedRectangle(0, d , w , H, cornersize, cornersize, {
         fill = fillcolor, stroke = bordercolor, strokeWidth = borderwidth
       })
-      return shadowpath and shadowpath .. " " .. path or path
+      path = shadowpath and (shadowpath .. " " .. path) or path
+      if shadowgrad then
+        if grad then
+          pl.tablex.insertvalues(grad, shadowgrad)
+        else
+          grad = shadowgrad
+        end
+      end
+      return path, grad
     end)
   end, "Frames content in a rounded box.")
 
@@ -201,8 +242,8 @@ function package:registerCommands ()
       -- (for hachures etc.)
       borderwidth = SILE.settings:get("framebox.borderwidth"):tonumber()
     end
-    local bordercolor = options.bordercolor and SILE.types.color(options.bordercolor)
-    local fillcolor = options.fillcolor and SILE.types.color(options.fillcolor)
+    local bordercolor = options.bordercolor and Color(options.bordercolor)
+    local fillcolor = options.fillcolor and Color(options.fillcolor)
     local enlarge = SU.boolean(options.enlarge, false)
 
     local hbox, hlist = SILE.typesetter:makeHbox(content)
@@ -221,7 +262,7 @@ function package:registerCommands ()
       fillStyle = options.fillstyle or 'hachure'
     }
 
-    frameHbox(hbox, hlist, nil, function (w, h, d)
+    self:_frameHbox(hbox, hlist, nil, function (w, h, d)
       local H = h + d
       local x = 0
       local y = d
@@ -239,7 +280,7 @@ function package:registerCommands ()
   self:registerCommand("bracebox", function (options, content)
     local padding = SU.cast("measurement", options.padding or SILE.types.measurement("0.25em")):tonumber()
     local strokewidth = SU.cast("measurement", options.strokewidth or SILE.types.measurement("0.033em")):tonumber()
-    local bracecolor = options.bracecolor and SILE.types.color(options.bracecolor)
+    local bracecolor = options.bracecolor and Color(options.bracecolor)
     local bracewidth = SU.cast("measurement", options.bracewidth or SILE.types.measurement("0.25em")):tonumber()
     local bracethickness = SU.cast("measurement", options.bracethickness or SILE.types.measurement("0.05em")):tonumber()
     local curvyness = SU.cast("number", options.curvyness or 0.6)
@@ -252,24 +293,33 @@ function package:registerCommands ()
     local hbox, hlist = SILE.typesetter:makeHbox(content)
     hbox = adjustPaddingHbox(hbox, left and bracewidth + padding or 0, right and bracewidth + padding or 0, 0, 0)
 
-    frameHbox(hbox, hlist, nil, function (w, h, d)
+    self:_frameHbox(hbox, hlist, nil, function (w, h, d)
       local painter = PathRenderer()
-      local lb, rb
+      local lb, rb, lgrad, rgrad
       if left then
-        lb = painter:curlyBrace(bracewidth, d, bracewidth, 2*d+h, bracewidth, bracethickness, curvyness, {
+        lb, lgrad = painter:curlyBrace(bracewidth, d, bracewidth, 2*d+h, bracewidth, bracethickness, curvyness, {
           fill = bracecolor,
           stroke = bracecolor,
           strokeWidth = strokewidth
         })
       end
       if right then
-        rb = painter:curlyBrace(w-bracewidth, d, w-bracewidth, 2*d+h, -bracewidth, bracethickness, curvyness, {
+        rb, rgrad= painter:curlyBrace(w-bracewidth, d, w-bracewidth, 2*d+h, -bracewidth, bracethickness, curvyness, {
           fill = bracecolor,
           stroke = bracecolor,
           strokeWidth = strokewidth
         })
       end
-      return lb and (rb and lb .. " " .. rb or lb) or rb
+      local path = lb and (rb and lb .. " " .. rb or lb) or rb
+      local grad = lgrad
+      if rgrad then
+        if grad then
+          pl.tablex.insertvalues(grad, rgrad)
+        else
+          grad = rgrad
+        end
+      end
+      return path, grad
     end)
   end, "Frames content in a box with curly brace(s).")
 
